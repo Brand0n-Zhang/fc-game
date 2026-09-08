@@ -69,7 +69,7 @@
 
                 <div class="game-home-row game-home-row-fwd">
                     <PlayerPill
-                        v-for="player in lineup.fwd"
+                        v-for="player in store.lineup.fwd"
                         :key="player.id"
                         :player="player"
                         :is-dragging="draggingId === player.id"
@@ -82,7 +82,7 @@
 
                 <div class="game-home-row game-home-row-mid">
                     <PlayerPill
-                        v-for="player in lineup.mid"
+                        v-for="player in store.lineup.mid"
                         :key="player.id"
                         :player="player"
                         :is-dragging="draggingId === player.id"
@@ -95,7 +95,7 @@
 
                 <div class="game-home-row game-home-row-def">
                     <PlayerPill
-                        v-for="player in lineup.def"
+                        v-for="player in store.lineup.def"
                         :key="player.id"
                         :player="player"
                         :is-dragging="draggingId === player.id"
@@ -108,7 +108,7 @@
 
                 <div class="game-home-row game-home-row-gk">
                     <PlayerPill
-                        v-for="player in lineup.gk"
+                        v-for="player in store.lineup.gk"
                         :key="player.id"
                         :player="player"
                         :is-dragging="draggingId === player.id"
@@ -127,35 +127,9 @@
 import { ref, computed, onBeforeUnmount } from 'vue';
 
 import PlayerPill from './components/PlayerPill.vue';
-import type { Line, Player, Slot } from './types';
+import { useSquadStore } from '@/stores/squad';
 
-const lineOf = (position: Slot): Line => {
-    if (position === 'gk') return 'gk';
-    if (position === 'lb' || position === 'lcb' || position === 'rcb' || position === 'rb') return 'def';
-    if (position === 'lcm' || position === 'cm' || position === 'rcm') return 'mid';
-    return 'fwd';
-};
-
-const slotOrder: Record<Line, Slot[]> = {
-    gk: ['gk'],
-    def: ['lb', 'lcb', 'rcb', 'rb'],
-    mid: ['lcm', 'cm', 'rcm'],
-    fwd: ['lw', 'st', 'rw'],
-};
-
-const squad = ref<Player[]>([
-    { id: 1, name: 'Ederson', position: 'gk' },
-    { id: 2, name: 'Gvardiol', position: 'lb' },
-    { id: 3, name: 'Dias', position: 'lcb' },
-    { id: 4, name: 'Stones', position: 'rcb' },
-    { id: 5, name: 'Walker', position: 'rb' },
-    { id: 6, name: 'Rodri', position: 'lcm' },
-    { id: 7, name: 'De Bruyne', position: 'cm' },
-    { id: 8, name: 'Bernardo', position: 'rcm' },
-    { id: 9, name: 'Foden', position: 'lw' },
-    { id: 10, name: 'Haaland', position: 'st' },
-    { id: 11, name: 'Doku', position: 'rw' },
-]);
+const store = useSquadStore();
 
 const draggingId = ref<number | null>(null);
 const hoverId = ref<number | null>(null);
@@ -170,17 +144,6 @@ const dragX = computed(() =>
 const dragY = computed(() =>
     draggingId.value !== null ? dragPointerY.value - dragStartY.value : 0,
 );
-
-const lineup = computed(() => {
-    const sortBySlot = (line: Line) => (a: Player, b: Player) =>
-        slotOrder[line].indexOf(a.position) - slotOrder[line].indexOf(b.position);
-    return {
-        gk: squad.value.filter((p) => lineOf(p.position) === 'gk'),
-        def: squad.value.filter((p) => lineOf(p.position) === 'def').sort(sortBySlot('def')),
-        mid: squad.value.filter((p) => lineOf(p.position) === 'mid').sort(sortBySlot('mid')),
-        fwd: squad.value.filter((p) => lineOf(p.position) === 'fwd').sort(sortBySlot('fwd')),
-    };
-});
 
 const handlePointerMove = (e: PointerEvent) => {
     dragPointerX.value = e.clientX;
@@ -199,13 +162,7 @@ const handlePointerUp = () => {
         hoverId.value !== null &&
         draggingId.value !== hoverId.value
     ) {
-        const a = squad.value.find((p) => p.id === draggingId.value);
-        const b = squad.value.find((p) => p.id === hoverId.value);
-        if (a && b) {
-            const tmp = a.position;
-            a.position = b.position;
-            b.position = tmp;
-        }
+        store.swapPositions(draggingId.value, hoverId.value);
     }
     draggingId.value = null;
     hoverId.value = null;
