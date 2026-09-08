@@ -68,43 +68,55 @@
                 </svg>
 
                 <div class="game-home-row game-home-row-fwd">
-                    <span
+                    <PlayerPill
                         v-for="player in lineup.fwd"
                         :key="player.id"
-                        class="game-home-player"
-                    >
-                        {{ player.name }}
-                    </span>
+                        :player="player"
+                        :is-dragging="draggingId === player.id"
+                        :is-hover="hoverId === player.id"
+                        :drag-x="dragX"
+                        :drag-y="dragY"
+                        @dragstart="handleDragStart"
+                    />
                 </div>
 
                 <div class="game-home-row game-home-row-mid">
-                    <span
+                    <PlayerPill
                         v-for="player in lineup.mid"
                         :key="player.id"
-                        class="game-home-player"
-                    >
-                        {{ player.name }}
-                    </span>
+                        :player="player"
+                        :is-dragging="draggingId === player.id"
+                        :is-hover="hoverId === player.id"
+                        :drag-x="dragX"
+                        :drag-y="dragY"
+                        @dragstart="handleDragStart"
+                    />
                 </div>
 
                 <div class="game-home-row game-home-row-def">
-                    <span
+                    <PlayerPill
                         v-for="player in lineup.def"
                         :key="player.id"
-                        class="game-home-player"
-                    >
-                        {{ player.name }}
-                    </span>
+                        :player="player"
+                        :is-dragging="draggingId === player.id"
+                        :is-hover="hoverId === player.id"
+                        :drag-x="dragX"
+                        :drag-y="dragY"
+                        @dragstart="handleDragStart"
+                    />
                 </div>
 
                 <div class="game-home-row game-home-row-gk">
-                    <span
+                    <PlayerPill
                         v-for="player in lineup.gk"
                         :key="player.id"
-                        class="game-home-player"
-                    >
-                        {{ player.name }}
-                    </span>
+                        :player="player"
+                        :is-dragging="draggingId === player.id"
+                        :is-hover="hoverId === player.id"
+                        :drag-x="dragX"
+                        :drag-y="dragY"
+                        @dragstart="handleDragStart"
+                    />
                 </div>
             </div>
         </div>
@@ -112,28 +124,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 
-type Slot =
-    | 'gk'
-    | 'lb'
-    | 'lcb'
-    | 'rcb'
-    | 'rb'
-    | 'lcm'
-    | 'cm'
-    | 'rcm'
-    | 'lw'
-    | 'st'
-    | 'rw'
-
-type Line = 'gk' | 'def' | 'mid' | 'fwd'
-
-interface Player {
-    id: number
-    name: string
-    position: Slot
-}
+import PlayerPill from './components/PlayerPill.vue'
+import type { Line, Player, Slot } from './types'
 
 const lineOf = (position: Slot): Line => {
     if (position === 'gk') return 'gk'
@@ -142,7 +136,14 @@ const lineOf = (position: Slot): Line => {
     return 'fwd'
 }
 
-const mockSquad: Player[] = [
+const slotOrder: Record<Line, Slot[]> = {
+    gk: ['gk'],
+    def: ['lb', 'lcb', 'rcb', 'rb'],
+    mid: ['lcm', 'cm', 'rcm'],
+    fwd: ['lw', 'st', 'rw'],
+}
+
+const squad = ref<Player[]>([
     { id: 1, name: 'Ederson', position: 'gk' },
     { id: 2, name: 'Gvardiol', position: 'lb' },
     { id: 3, name: 'Dias', position: 'lcb' },
@@ -154,14 +155,78 @@ const mockSquad: Player[] = [
     { id: 9, name: 'Foden', position: 'lw' },
     { id: 10, name: 'Haaland', position: 'st' },
     { id: 11, name: 'Doku', position: 'rw' },
-]
+])
 
-const lineup = computed(() => ({
-    gk: mockSquad.filter((p) => lineOf(p.position) === 'gk'),
-    def: mockSquad.filter((p) => lineOf(p.position) === 'def'),
-    mid: mockSquad.filter((p) => lineOf(p.position) === 'mid'),
-    fwd: mockSquad.filter((p) => lineOf(p.position) === 'fwd'),
-}))
+const draggingId = ref<number | null>(null)
+const hoverId = ref<number | null>(null)
+const dragStartX = ref(0)
+const dragStartY = ref(0)
+const dragPointerX = ref(0)
+const dragPointerY = ref(0)
+
+const dragX = computed(() =>
+    draggingId.value !== null ? dragPointerX.value - dragStartX.value : 0,
+)
+const dragY = computed(() =>
+    draggingId.value !== null ? dragPointerY.value - dragStartY.value : 0,
+)
+
+const lineup = computed(() => {
+    const sortBySlot = (line: Line) => (a: Player, b: Player) =>
+        slotOrder[line].indexOf(a.position) - slotOrder[line].indexOf(b.position)
+    return {
+        gk: squad.value.filter((p) => lineOf(p.position) === 'gk'),
+        def: squad.value.filter((p) => lineOf(p.position) === 'def').sort(sortBySlot('def')),
+        mid: squad.value.filter((p) => lineOf(p.position) === 'mid').sort(sortBySlot('mid')),
+        fwd: squad.value.filter((p) => lineOf(p.position) === 'fwd').sort(sortBySlot('fwd')),
+    }
+})
+
+const handlePointerMove = (e: PointerEvent) => {
+    dragPointerX.value = e.clientX
+    dragPointerY.value = e.clientY
+    const el = document.elementFromPoint(e.clientX, e.clientY)
+    if (el instanceof HTMLElement && el.classList.contains('player-pill')) {
+        hoverId.value = Number(el.dataset.playerId)
+    } else {
+        hoverId.value = null
+    }
+}
+
+const handlePointerUp = () => {
+    if (
+        draggingId.value !== null &&
+        hoverId.value !== null &&
+        draggingId.value !== hoverId.value
+    ) {
+        const a = squad.value.find((p) => p.id === draggingId.value)
+        const b = squad.value.find((p) => p.id === hoverId.value)
+        if (a && b) {
+            const tmp = a.position
+            a.position = b.position
+            b.position = tmp
+        }
+    }
+    draggingId.value = null
+    hoverId.value = null
+    document.removeEventListener('pointermove', handlePointerMove)
+    document.removeEventListener('pointerup', handlePointerUp)
+}
+
+const handleDragStart = (id: number, clientX: number, clientY: number) => {
+    draggingId.value = id
+    dragStartX.value = clientX
+    dragStartY.value = clientY
+    dragPointerX.value = clientX
+    dragPointerY.value = clientY
+    document.addEventListener('pointermove', handlePointerMove)
+    document.addEventListener('pointerup', handlePointerUp)
+}
+
+onBeforeUnmount(() => {
+    document.removeEventListener('pointermove', handlePointerMove)
+    document.removeEventListener('pointerup', handlePointerUp)
+})
 </script>
 
 <style lang="less" scoped>
