@@ -147,6 +147,7 @@ import AttackFlow from './components/AttackFlow.vue';
 import CardThumb from './components/CardThumb.vue';
 import PlayerPill from './components/PlayerPill.vue';
 import type { Card } from '@/types/cardType';
+import type { Player } from '@/types/playerType';
 import { useCardStore } from '@/stores/card';
 import { useSquadStore } from '@/stores/squad';
 
@@ -176,8 +177,14 @@ const dragY = computed(() =>
     draggingId.value !== null ? dragPointerY.value - dragStartY.value : 0,
 );
 
-function onAttackFinish() {
-    // TODO: 引擎结算
+function onAttackFinish(cards: Card[], targets: Player[]) {
+    const gk = store.players.find((p) => p.position === 'gk');
+    const chain = cards.map((card, i) => ({
+        card: card.name.zh,
+        from: i === 0 ? gk?.name ?? '门将' : targets[i - 1]?.name ?? '未知',
+        to: targets[i]?.name ?? '未知',
+    }));
+    console.log('进攻链路：', chain);
 }
 
 const handlePointerMove = (e: PointerEvent) => {

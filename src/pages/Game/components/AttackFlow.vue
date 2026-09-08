@@ -120,7 +120,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     'update:show': [value: boolean]
     close: []
-    finish: []
+    finish: [cards: Card[], targets: Player[]]
 }>();
 
 const store = useSquadStore();
@@ -128,11 +128,13 @@ const store = useSquadStore();
 const step = ref<Step>('pick-gk');
 const currentTarget = ref<Player | null>(null);
 const selectedCards = ref<Card[]>([]);
+const selectedTargets = ref<Player[]>([]);
 
 function resetState() {
     step.value = 'pick-gk';
     currentTarget.value = null;
     selectedCards.value = [];
+    selectedTargets.value = [];
 }
 
 watch(() => props.show, (val) => {
@@ -202,11 +204,12 @@ function selectCard(card: Card) {
 
 function selectPlayer(player: Player) {
     currentTarget.value = player;
+    selectedTargets.value.push(player);
     step.value = remainingCards.value.length > 0 ? 'pick-card' : 'done';
 }
 
 function finishFlow() {
-    emit('finish');
+    emit('finish', selectedCards.value, selectedTargets.value);
     emit('update:show', false);
     emit('close');
 }
