@@ -118,6 +118,8 @@
                         @dragstart="handleDragStart"
                     />
                 </div>
+
+                <AttackFlowViz :chain="attackChain" :visible="showViz" />
             </div>
 
             <div class="game-home-hand">
@@ -132,7 +134,7 @@
 
             <button
                 class="game-home-action"
-                @click="modalOpen = true"
+                @click="modalOpen = true; showViz = false"
             >开始进攻</button>
         </div>
 
@@ -144,6 +146,7 @@
 import { ref, computed, onBeforeUnmount } from 'vue';
 
 import AttackFlow from './components/AttackFlow.vue';
+import AttackFlowViz from './components/AttackFlowViz.vue';
 import CardThumb from './components/CardThumb.vue';
 import PlayerPill from './components/PlayerPill.vue';
 import type { Card } from '@/types/cardType';
@@ -162,6 +165,8 @@ const handCards = ref<Card[]>([
 ]);
 
 const modalOpen = ref(false);
+const attackChain = ref<Array<{ card: string; from: string; to: string }>>([]);
+const showViz = ref(false);
 
 const draggingId = ref<number | null>(null);
 const hoverId = ref<number | null>(null);
@@ -185,6 +190,8 @@ function onAttackFinish(cards: Card[], targets: Player[]) {
         to: targets[i]?.name ?? '未知',
     }));
     console.log('进攻链路：', chain);
+    attackChain.value = chain;
+    showViz.value = true;
 }
 
 const handlePointerMove = (e: PointerEvent) => {
