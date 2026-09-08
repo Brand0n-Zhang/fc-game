@@ -16,7 +16,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 
-import type { Player } from '../types'
+import type { Player } from '@/types/playerType'
 
 const props = defineProps<{
     player: Player

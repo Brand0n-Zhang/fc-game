@@ -1,8 +1,21 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
-import { lineOf, slotOrder } from '@/pages/Game/slots'
-import type { Line, Player } from '@/pages/Game/types'
+import type { Line, Player, Slot } from '@/types/playerType'
+
+function lineOf(position: Slot): Line {
+    if (position === 'gk') return 'gk'
+    if (position === 'lb' || position === 'lcb' || position === 'rcb' || position === 'rb') return 'def'
+    if (position === 'lcm' || position === 'cm' || position === 'rcm') return 'mid'
+    return 'fwd'
+}
+
+const slotOrder: Record<Line, Slot[]> = {
+    gk: ['gk'],
+    def: ['lb', 'lcb', 'rcb', 'rb'],
+    mid: ['lcm', 'cm', 'rcm'],
+    fwd: ['lw', 'st', 'rw'],
+}
 
 const initialSquad: Player[] = [
     { id: 1, name: 'Ederson', position: 'gk' },

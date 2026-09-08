@@ -1,30 +1,15 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
-// ===== Types =====
-export type AttackCardType = 'short-pass' | 'shoot' | 'dribble' | 'long-pass'
-export type DefenseCardType = 'save' | 'tackle' | 'clear' | 'block'
-export type CardType = AttackCardType | DefenseCardType
-export type DeckSide = 'attack' | 'defense'
+import type {
+    AttackCardType,
+    Card,
+    CardMeta,
+    CardType,
+    DeckSide,
+    DefenseCardType,
+} from '@/types/cardType'
 
-export interface LocalizedName {
-    zh: string
-    en: string
-}
-
-export interface Card {
-    id: number
-    name: LocalizedName
-    type: CardType
-    cost: number
-}
-
-interface CardMeta {
-    name: LocalizedName
-    cost: number
-}
-
-// ===== Config =====
 const ATTACK_META: Record<AttackCardType, CardMeta> = {
     'short-pass': { name: { zh: '短传', en: 'Short Pass' }, cost: 1 },
     'shoot': { name: { zh: '射门', en: 'Shoot' }, cost: 1 },
@@ -53,7 +38,6 @@ const DEFENSE_COUNTS: Record<DefenseCardType, number> = {
     'block': 5,
 }
 
-// ===== Builder =====
 function buildPool<T extends CardType>(
     counts: Record<T, number>,
     meta: Record<T, CardMeta>,
@@ -73,7 +57,6 @@ function buildPool<T extends CardType>(
     return cards
 }
 
-// ===== Store =====
 export const useCardStore = defineStore('card', () => {
     const attack = ref<Card[]>(buildPool(ATTACK_COUNTS, ATTACK_META))
     const defense = ref<Card[]>(buildPool(DEFENSE_COUNTS, DEFENSE_META))
