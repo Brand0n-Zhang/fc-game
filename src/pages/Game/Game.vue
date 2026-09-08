@@ -120,13 +120,23 @@
                 </div>
             </div>
 
+            <div class="game-home-hand">
+                <div class="game-home-hand-list">
+                    <CardThumb
+                        v-for="card in handCards"
+                        :key="card.id"
+                        :card="card"
+                    />
+                </div>
+            </div>
+
             <button
                 class="game-home-action"
                 @click="modalOpen = true"
             >开始进攻</button>
         </div>
 
-        <AttackFlow v-model:show="modalOpen" @finish="onAttackFinish" />
+        <AttackFlow v-model:show="modalOpen" :hand-cards="handCards" @finish="onAttackFinish" />
     </div>
 </template>
 
@@ -134,10 +144,21 @@
 import { ref, computed, onBeforeUnmount } from 'vue';
 
 import AttackFlow from './components/AttackFlow.vue';
+import CardThumb from './components/CardThumb.vue';
 import PlayerPill from './components/PlayerPill.vue';
+import type { Card } from '@/types/cardType';
+import { useCardStore } from '@/stores/card';
 import { useSquadStore } from '@/stores/squad';
 
 const store = useSquadStore();
+const cardStore = useCardStore();
+
+const shortPassOnly = (c: Card) => c.type === 'short-pass';
+const longPassOnly = (c: Card) => c.type === 'long-pass';
+const handCards = ref<Card[]>([
+    ...cardStore.drawRandom('attack', 1, longPassOnly),
+    ...cardStore.drawRandom('attack', 5, shortPassOnly),
+]);
 
 const modalOpen = ref(false);
 

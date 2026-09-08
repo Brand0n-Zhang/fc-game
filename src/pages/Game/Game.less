@@ -96,6 +96,35 @@
         top: 90%;
     }
 
+    .game-home-hand {
+        width: 100%;
+        max-width: 360px;
+        height: 110px;
+        padding: 8px 12px;
+        border-radius: 14px;
+        background: rgba(14, 26, 43, 0.6);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .game-home-hand-list {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0 6px;
+    }
+
+    .game-home-hand-list>* {
+        flex: 0 0 auto;
+    }
+
+    .game-home-hand-list>*+* {
+        margin-left: -20px;
+    }
+
     .game-home-action {
         width: 100%;
         max-width: 360px;

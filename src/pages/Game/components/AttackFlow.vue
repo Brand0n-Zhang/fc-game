@@ -38,7 +38,7 @@
                 <p class="attack-flow-hint">{{ stepHint }}</p>
                 <div class="attack-flow-list">
                     <div
-                        v-for="card in handCards"
+                        v-for="card in remainingCards"
                         :key="card.id"
                         class="attack-flow-pickable"
                         @click="selectCard(card)"
@@ -73,36 +73,14 @@
             </div>
 
             <div
-                v-else-if="step === 'pick-card-2'"
-                class="attack-flow-step"
-            >
-                <h3 class="attack-flow-title">继续选择手牌</h3>
-                <p class="attack-flow-hint">{{ stepHint }}</p>
-                <div class="attack-flow-list">
-                    <div
-                        v-for="card in secondPickCards"
-                        :key="card.id"
-                        class="attack-flow-pickable"
-                        @click="selectCard2(card)"
-                    >
-                        <CardThumb :card="card" />
-                    </div>
-                </div>
-            </div>
-
-            <div
                 v-else-if="step === 'done'"
                 class="attack-flow-step"
             >
                 <h3 class="attack-flow-title">本轮选择完成</h3>
                 <ul class="attack-flow-summary">
                     <li>门将：{{ gkPlayer?.name }}</li>
-                    <li>动作 1：{{ selectedCards[0]?.name.zh }}</li>
-                    <li v-if="selectedCards.length > 1 && currentTarget">
-                        目标：{{ currentTarget.name }}
-                    </li>
-                    <li v-if="selectedCards.length > 1">
-                        动作 2：{{ selectedCards[1]?.name.zh }}
+                    <li v-for="(card, i) in selectedCards" :key="card.id">
+                        动作 {{ i + 1 }}：{{ card.name.zh }}
                     </li>
                 </ul>
                 <button
@@ -122,13 +100,13 @@ import PlayerPill from './PlayerPill.vue';
 import { nearestTeammates } from '@/game/slots';
 import type { Card } from '@/types/cardType';
 import type { Player } from '@/types/playerType';
-import { useCardStore } from '@/stores/card';
 import { useSquadStore } from '@/stores/squad';
 
-type Step = 'pick-gk' | 'pick-card' | 'pick-player' | 'pick-card-2' | 'done';
+type Step = 'pick-gk' | 'pick-card' | 'pick-player' | 'done';
 
 const props = defineProps<{
     show: boolean
+    handCards: Card[]
 }>();
 
 const emit = defineEmits<{
@@ -138,24 +116,15 @@ const emit = defineEmits<{
 }>();
 
 const store = useSquadStore();
-const cardStore = useCardStore();
-
-const shortPassOnly = (c: Card) => c.type === 'short-pass';
-const longPassOnly = (c: Card) => c.type === 'long-pass';
 
 const step = ref<Step>('pick-gk');
 const currentTarget = ref<Player | null>(null);
 const selectedCards = ref<Card[]>([]);
-const handCards = ref<Card[]>([]);
 
 function resetState() {
     step.value = 'pick-gk';
     currentTarget.value = null;
     selectedCards.value = [];
-    handCards.value = [
-        ...cardStore.drawRandom('attack', 1, longPassOnly),
-        ...cardStore.drawRandom('attack', 5, shortPassOnly),
-    ];
 }
 
 watch(() => props.show, (val) => {
@@ -166,10 +135,17 @@ const gkPlayer = computed<Player | null>(
     () => store.players.find((p) => p.position === 'gk') ?? null,
 );
 
+const remainingCards = computed<Card[]>(() => {
+    const usedIds = new Set(selectedCards.value.map((c) => c.id));
+    return props.handCards.filter((c) => !usedIds.has(c.id));
+});
+
+const lastCard = computed(() => selectedCards.value.at(-1) ?? null);
+
 const availablePlayers = computed<Player[]>(() => {
     if (step.value !== 'pick-player') return [];
     if (!currentTarget.value) return [];
-    const card = selectedCards.value[0];
+    const card = lastCard.value;
     if (!card) return [];
     const allSlots = store.players.map((p) => p.position);
     if (card.type === 'short-pass') {
@@ -186,20 +162,19 @@ const availablePlayers = computed<Player[]>(() => {
 });
 
 const stepHint = computed(() => {
-    if (step.value === 'pick-card' || step.value === 'pick-card-2') {
-        return currentTarget.value ? `目标球员：${currentTarget.value.name}` : '';
+    if (step.value === 'pick-card') {
+        const round = selectedCards.value.length + 1;
+        return currentTarget.value
+            ? `第 ${round} 轮 · 目标：${currentTarget.value.name}`
+            : `第 ${round} 轮`;
     }
     if (step.value === 'pick-player') {
-        const card = selectedCards.value[0];
+        const card = lastCard.value;
         if (card?.type === 'short-pass') return '短传：离目标最近的 2 名队友';
         if (card?.type === 'long-pass') return '长传：除最近 2 名之外的所有球员';
     }
     return '';
 });
-
-const secondPickCards = computed<Card[]>(() =>
-    handCards.value.filter((c) => c.id !== selectedCards.value[0]?.id),
-);
 
 function onUpdateShow(val: boolean) {
     emit('update:show', val);
@@ -214,21 +189,12 @@ function selectGk() {
 
 function selectCard(card: Card) {
     selectedCards.value.push(card);
-    if (card.type === 'short-pass' || card.type === 'long-pass') {
-        step.value = 'pick-player';
-    } else {
-        step.value = 'pick-card-2';
-    }
+    step.value = 'pick-player';
 }
 
 function selectPlayer(player: Player) {
     currentTarget.value = player;
-    step.value = 'pick-card-2';
-}
-
-function selectCard2(card: Card) {
-    selectedCards.value.push(card);
-    step.value = 'done';
+    step.value = remainingCards.value.length > 0 ? 'pick-card' : 'done';
 }
 
 function finishFlow() {
