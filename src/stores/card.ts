@@ -12,7 +12,6 @@ import type {
 
 const ATTACK_META: Record<AttackCardType, CardMeta> = {
     'short-pass': { name: { zh: '短传', en: 'Short Pass' }, cost: 1 },
-    'shoot': { name: { zh: '射门', en: 'Shoot' }, cost: 1 },
     'dribble': { name: { zh: '过人', en: 'Dribble' }, cost: 1 },
     'long-pass': { name: { zh: '长传', en: 'Long Pass' }, cost: 1 },
 }
@@ -26,7 +25,6 @@ const DEFENSE_META: Record<DefenseCardType, CardMeta> = {
 
 const ATTACK_COUNTS: Record<AttackCardType, number> = {
     'short-pass': 7,
-    'shoot': 5,
     'dribble': 3,
     'long-pass': 3,
 }

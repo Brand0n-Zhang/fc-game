@@ -1,4 +1,4 @@
-export type AttackCardType = 'short-pass' | 'shoot' | 'dribble' | 'long-pass'
+export type AttackCardType = 'short-pass' | 'dribble' | 'long-pass'
 export type DefenseCardType = 'save' | 'tackle' | 'clear' | 'block'
 export type CardType = AttackCardType | DefenseCardType
 export type DeckSide = 'attack' | 'defense'

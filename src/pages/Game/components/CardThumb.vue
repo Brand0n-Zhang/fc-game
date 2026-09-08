@@ -18,7 +18,7 @@ const props = defineProps<{
     card: Card
 }>()
 
-const ATTACK_TYPES: CardType[] = ['short-pass', 'shoot', 'dribble', 'long-pass']
+const ATTACK_TYPES: CardType[] = ['short-pass', 'dribble', 'long-pass']
 
 const cardTypeSide = computed<'attack' | 'defense'>(() =>
     ATTACK_TYPES.includes(props.card.type) ? 'attack' : 'defense',
@@ -26,7 +26,6 @@ const cardTypeSide = computed<'attack' | 'defense'>(() =>
 
 const TYPE_LABEL: Record<CardType, string> = {
     'short-pass': '传球',
-    'shoot': '射门',
     'dribble': '过人',
     'long-pass': '长传',
     'save': '扑救',

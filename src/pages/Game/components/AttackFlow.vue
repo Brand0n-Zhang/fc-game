@@ -46,6 +46,10 @@
                         <CardThumb :card="card" />
                     </div>
                 </div>
+                <button
+                    class="attack-flow-shoot"
+                    @click="finishFlow"
+                >射门</button>
             </div>
 
             <div
@@ -70,6 +74,10 @@
                         />
                     </div>
                 </div>
+                <button
+                    class="attack-flow-shoot"
+                    @click="finishFlow"
+                >射门</button>
             </div>
 
             <div
