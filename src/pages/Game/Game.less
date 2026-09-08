@@ -1,0 +1,109 @@
+.game-home {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+    padding: 16px 16px 24px;
+
+    .game-home-top {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 44px;
+    }
+
+    .game-home-brand {
+        font-size: 13px;
+        letter-spacing: 1.5px;
+        color: #94a3b8;
+        text-transform: uppercase;
+    }
+
+    .game-home-stage {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .game-home-field {
+        position: relative;
+        width: 100%;
+        max-width: 360px;
+        aspect-ratio: 3 / 4;
+        border-radius: 14px;
+        overflow: hidden;
+        background:
+            repeating-linear-gradient(
+                180deg,
+                transparent 0 36px,
+                rgba(0, 0, 0, 0.06) 36px 72px
+            ),
+            linear-gradient(180deg, #3da14e 0%, #2d8a3e 100%);
+        box-shadow:
+            inset 0 0 0 1px rgba(255, 255, 255, 0.15),
+            0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .game-home-field-svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .game-home-field-outline {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.55);
+        stroke-width: 1.2;
+    }
+
+    .game-home-field-line,
+    .game-home-field-circle,
+    .game-home-field-box {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.5);
+        stroke-width: 0.8;
+    }
+
+    .game-home-field-spot {
+        fill: rgba(255, 255, 255, 0.6);
+    }
+
+    .game-home-row {
+        position: absolute;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: 0 12px;
+    }
+
+    .game-home-row-fwd {
+        top: 8%;
+    }
+
+    .game-home-row-mid {
+        top: 38%;
+    }
+
+    .game-home-row-def {
+        top: 68%;
+    }
+
+    .game-home-row-gk {
+        top: 90%;
+    }
+
+    .game-home-player {
+        display: inline-block;
+        padding: 5px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #0e1a2b;
+        background: rgba(255, 255, 255, 0.92);
+        border-radius: 14px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+        white-space: nowrap;
+    }
+}

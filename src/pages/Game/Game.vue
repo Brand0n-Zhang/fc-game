@@ -4,57 +4,146 @@
             <span class="game-home-brand">Football Clash Cards</span>
         </header>
 
-        <main class="game-home-main">
-            <h1 class="game-home-title">足球卡牌对战</h1>
-            <p class="game-home-subtitle">移动端 H5 · MVP Scaffold Ready</p>
-        </main>
+        <div class="game-home-stage">
+            <div class="game-home-field">
+                <svg
+                    class="game-home-field-svg"
+                    viewBox="0 0 300 400"
+                    preserveAspectRatio="xMidYMid meet"
+                >
+                    <rect
+                        class="game-home-field-outline"
+                        x="0"
+                        y="0"
+                        width="300"
+                        height="400"
+                    />
+                    <line
+                        class="game-home-field-line"
+                        x1="0"
+                        y1="200"
+                        x2="300"
+                        y2="200"
+                    />
+                    <circle
+                        class="game-home-field-circle"
+                        cx="150"
+                        cy="200"
+                        r="30"
+                    />
+                    <circle
+                        class="game-home-field-spot"
+                        cx="150"
+                        cy="200"
+                        r="1.5"
+                    />
+                    <rect
+                        class="game-home-field-box"
+                        x="60"
+                        y="0"
+                        width="180"
+                        height="50"
+                    />
+                    <rect
+                        class="game-home-field-box"
+                        x="110"
+                        y="0"
+                        width="80"
+                        height="20"
+                    />
+                    <rect
+                        class="game-home-field-box"
+                        x="60"
+                        y="350"
+                        width="180"
+                        height="50"
+                    />
+                    <rect
+                        class="game-home-field-box"
+                        x="110"
+                        y="380"
+                        width="80"
+                        height="20"
+                    />
+                </svg>
+
+                <div class="game-home-row game-home-row-fwd">
+                    <span
+                        v-for="player in lineup.fwd"
+                        :key="player.id"
+                        class="game-home-player"
+                    >
+                        {{ player.name }}
+                    </span>
+                </div>
+
+                <div class="game-home-row game-home-row-mid">
+                    <span
+                        v-for="player in lineup.mid"
+                        :key="player.id"
+                        class="game-home-player"
+                    >
+                        {{ player.name }}
+                    </span>
+                </div>
+
+                <div class="game-home-row game-home-row-def">
+                    <span
+                        v-for="player in lineup.def"
+                        :key="player.id"
+                        class="game-home-player"
+                    >
+                        {{ player.name }}
+                    </span>
+                </div>
+
+                <div class="game-home-row game-home-row-gk">
+                    <span
+                        v-for="player in lineup.gk"
+                        :key="player.id"
+                        class="game-home-player"
+                    >
+                        {{ player.name }}
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { computed } from 'vue'
+
+type Position = 'gk' | 'def' | 'mid' | 'fwd'
+
+interface Player {
+    id: string
+    name: string
+    position: Position
+}
+
+const mockSquad: Player[] = [
+    { id: 'gk', name: 'Ederson', position: 'gk' },
+    { id: 'lb', name: 'Gvardiol', position: 'def' },
+    { id: 'lcb', name: 'Dias', position: 'def' },
+    { id: 'rcb', name: 'Stones', position: 'def' },
+    { id: 'rb', name: 'Walker', position: 'def' },
+    { id: 'lcm', name: 'Rodri', position: 'mid' },
+    { id: 'cm', name: 'De Bruyne', position: 'mid' },
+    { id: 'rcm', name: 'Bernardo', position: 'mid' },
+    { id: 'lw', name: 'Foden', position: 'fwd' },
+    { id: 'st', name: 'Haaland', position: 'fwd' },
+    { id: 'rw', name: 'Doku', position: 'fwd' },
+]
+
+const lineup = computed(() => ({
+    gk: mockSquad.filter((p) => p.position === 'gk'),
+    def: mockSquad.filter((p) => p.position === 'def'),
+    mid: mockSquad.filter((p) => p.position === 'mid'),
+    fwd: mockSquad.filter((p) => p.position === 'fwd'),
+}))
+</script>
 
 <style lang="less" scoped>
-.game-home {
-    display: flex;
-    flex-direction: column;
-    min-height: 100dvh;
-    padding: 24px 20px;
-
-    .game-home-top {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 44px;
-    }
-
-    .game-home-brand {
-        font-size: 14px;
-        letter-spacing: 1px;
-        color: #94a3b8;
-        text-transform: uppercase;
-    }
-
-    .game-home-main {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        gap: 12px;
-
-        .game-home-title {
-            margin: 0;
-            font-size: 28px;
-            font-weight: 600;
-            color: #f8fafc;
-        }
-
-        .game-home-subtitle {
-            margin: 0;
-            font-size: 14px;
-            color: #64748b;
-        }
-    }
-}
+@import './Game.less';
 </style>
