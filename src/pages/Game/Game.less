@@ -21,14 +21,17 @@
     .game-home-stage {
         flex: 1;
         display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
+        gap: 12px;
+        min-height: 0;
     }
 
     .game-home-field {
         position: relative;
         width: 100%;
-        max-width: 360px;
+        max-width: 280px;
         aspect-ratio: 3 / 4;
         border-radius: 14px;
         overflow: hidden;
@@ -93,5 +96,26 @@
 
     .game-home-row-gk {
         top: 90%;
+    }
+
+    .game-home-hand {
+        width: 100%;
+        max-width: 280px;
+        height: 110px;
+        padding: 8px 12px;
+        border-radius: 14px;
+        background: rgba(14, 26, 43, 0.6);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .game-home-hand-list {
+        flex: 1;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        gap: 8px;
     }
 }

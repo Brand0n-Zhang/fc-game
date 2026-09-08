@@ -119,6 +119,16 @@
                     />
                 </div>
             </div>
+
+            <div class="game-home-hand">
+                <div class="game-home-hand-list">
+                    <CardThumb
+                        v-for="card in handCards"
+                        :key="card.id"
+                        :card="card"
+                    />
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -126,10 +136,15 @@
 <script lang="ts" setup>
 import { ref, computed, onBeforeUnmount } from 'vue';
 
+import CardThumb from './components/CardThumb.vue';
 import PlayerPill from './components/PlayerPill.vue';
+import { useCardStore } from '@/stores/card';
 import { useSquadStore } from '@/stores/squad';
 
 const store = useSquadStore();
+const cardStore = useCardStore();
+
+const handCards = computed(() => cardStore.attack.slice(0, 4));
 
 const draggingId = ref<number | null>(null);
 const hoverId = ref<number | null>(null);
