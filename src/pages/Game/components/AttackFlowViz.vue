@@ -32,7 +32,8 @@
                     :y1="coords[i].from[1]"
                     :x2="coords[i].to[0]"
                     :y2="coords[i].to[1]"
-                    :style="{ animationDelay: `${i * 0.6}s` }"
+                    :stroke-dasharray="lineLength(i)"
+                    :stroke-dashoffset="i <= activeIndex ? 0 : lineLength(i)"
                     marker-end="url(#attack-arrow)"
                 />
 
@@ -140,6 +141,12 @@ function labelY(i: number): number {
     const [, fy] = coords.value[i].from;
     const [, ty] = coords.value[i].to;
     return (fy + ty) / 2 - 10;
+}
+
+function lineLength(i: number): number {
+    const [fx, fy] = coords.value[i].from;
+    const [tx, ty] = coords.value[i].to;
+    return Math.hypot(tx - fx, ty - fy);
 }
 
 watch(
