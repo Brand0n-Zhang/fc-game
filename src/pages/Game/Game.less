@@ -114,8 +114,16 @@
     .game-home-hand-list {
         flex: 1;
         display: flex;
-        justify-content: space-around;
+        justify-content: center;
         align-items: center;
-        gap: 8px;
+        padding: 0 6px;
+    }
+
+    .game-home-hand-list > * {
+        flex: 0 0 auto;
+    }
+
+    .game-home-hand-list > * + * {
+        margin-left: -20px;
     }
 }

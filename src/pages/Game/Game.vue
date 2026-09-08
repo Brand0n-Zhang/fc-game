@@ -144,7 +144,7 @@ import { useSquadStore } from '@/stores/squad';
 const store = useSquadStore();
 const cardStore = useCardStore();
 
-const handCards = computed(() => cardStore.attack.slice(0, 4));
+const handCards = computed(() => cardStore.attack.slice(0, 6));
 
 const draggingId = ref<number | null>(null);
 const hoverId = ref<number | null>(null);
