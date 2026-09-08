@@ -48,7 +48,7 @@
                 </div>
                 <button
                     class="attack-flow-shoot"
-                    @click="finishFlow"
+                    @click="finishFlow(true)"
                 >射门</button>
             </div>
 
@@ -76,7 +76,7 @@
                 </div>
                 <button
                     class="attack-flow-shoot"
-                    @click="finishFlow"
+                    @click="finishFlow(true)"
                 >射门</button>
             </div>
 
@@ -93,7 +93,7 @@
                 </ul>
                 <button
                     class="attack-flow-confirm"
-                    @click="finishFlow"
+                    @click="() => finishFlow()"
                 >完成</button>
             </div>
         </div>
@@ -120,7 +120,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     'update:show': [value: boolean]
     close: []
-    finish: [cards: Card[], targets: Player[]]
+    finish: [cards: Card[], targets: Player[], shoot: boolean]
 }>();
 
 const store = useSquadStore();
@@ -208,8 +208,8 @@ function selectPlayer(player: Player) {
     step.value = remainingCards.value.length > 0 ? 'pick-card' : 'done';
 }
 
-function finishFlow() {
-    emit('finish', selectedCards.value, selectedTargets.value);
+function finishFlow(shoot = false) {
+    emit('finish', selectedCards.value, selectedTargets.value, shoot);
     emit('update:show', false);
     emit('close');
 }

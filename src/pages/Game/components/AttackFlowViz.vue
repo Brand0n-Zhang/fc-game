@@ -20,6 +20,20 @@
                         fill="#00e676"
                     />
                 </marker>
+                <marker
+                    id="attack-arrow-goal"
+                    viewBox="0 0 10 7"
+                    refX="10"
+                    refY="3.5"
+                    markerWidth="10"
+                    marker-height="7"
+                    orient="auto"
+                >
+                    <polygon
+                        points="0 0, 10 3.5, 0 7"
+                        fill="#ff5252"
+                    />
+                </marker>
             </defs>
 
             <g v-for="(step, i) in chain" :key="i">
@@ -27,6 +41,7 @@
                     :class="[
                         'attack-flow-viz-line',
                         { 'attack-flow-viz-line--active': i <= activeIndex },
+                        { 'attack-flow-viz-line--goal': step.goal },
                     ]"
                     :x1="coords[i].from[0]"
                     :y1="coords[i].from[1]"
@@ -34,7 +49,7 @@
                     :y2="coords[i].to[1]"
                     :stroke-dasharray="lineLength(i)"
                     :stroke-dashoffset="i <= activeIndex ? 0 : lineLength(i)"
-                    marker-end="url(#attack-arrow)"
+                    :marker-end="step.goal ? 'url(#attack-arrow-goal)' : 'url(#attack-arrow)'"
                 />
 
                 <circle
@@ -67,6 +82,18 @@
                     :style="{ animationDelay: `${i * 0.6 + 0.4}s` }"
                 />
 
+                <circle
+                    v-if="step.goal"
+                    :class="[
+                        'attack-flow-viz-goal',
+                        { 'attack-flow-viz-goal--active': i <= activeIndex },
+                    ]"
+                    :cx="step.goal[0]"
+                    :cy="step.goal[1]"
+                    r="8"
+                    :style="{ animationDelay: `${i * 0.6 + 0.5}s` }"
+                />
+
                 <text
                     :class="[
                         'attack-flow-viz-label',
@@ -89,6 +116,7 @@ interface ChainStep {
     card: string;
     from: string;
     to: string;
+    goal?: [number, number];
 }
 
 interface Point {
@@ -127,7 +155,7 @@ function readPlayerCoords(name: string): [number, number] {
 function buildCoords(): Point[] {
     return props.chain.map((step) => ({
         from: readPlayerCoords(step.from),
-        to: readPlayerCoords(step.to),
+        to: step.goal ?? readPlayerCoords(step.to),
     }));
 }
 

@@ -19,6 +19,11 @@
     &--active {
         opacity: 1;
     }
+
+    &--goal {
+        stroke: #ff5252;
+        stroke-width: 3;
+    }
 }
 
 .attack-flow-viz-ball {
@@ -53,6 +58,17 @@
     }
 }
 
+.attack-flow-viz-goal {
+    fill: none;
+    stroke: #ff5252;
+    stroke-width: 2;
+    opacity: 0;
+
+    &--active {
+        animation: attack-goal-ring 0.5s ease forwards;
+    }
+}
+
 @keyframes attack-ball-appear {
     0% {
         opacity: 0;
@@ -78,5 +94,16 @@
 @keyframes attack-label-fade {
     to {
         opacity: 1;
+    }
+}
+
+@keyframes attack-goal-ring {
+    0% {
+        opacity: 0;
+        r: 0;
+    }
+    100% {
+        opacity: 1;
+        r: 8;
     }
 }
