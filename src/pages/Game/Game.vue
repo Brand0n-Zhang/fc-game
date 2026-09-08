@@ -114,33 +114,53 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 
-type Position = 'gk' | 'def' | 'mid' | 'fwd'
+type Slot =
+    | 'gk'
+    | 'lb'
+    | 'lcb'
+    | 'rcb'
+    | 'rb'
+    | 'lcm'
+    | 'cm'
+    | 'rcm'
+    | 'lw'
+    | 'st'
+    | 'rw'
+
+type Line = 'gk' | 'def' | 'mid' | 'fwd'
 
 interface Player {
-    id: string
+    id: number
     name: string
-    position: Position
+    position: Slot
+}
+
+const lineOf = (position: Slot): Line => {
+    if (position === 'gk') return 'gk'
+    if (position === 'lb' || position === 'lcb' || position === 'rcb' || position === 'rb') return 'def'
+    if (position === 'lcm' || position === 'cm' || position === 'rcm') return 'mid'
+    return 'fwd'
 }
 
 const mockSquad: Player[] = [
-    { id: 'gk', name: 'Ederson', position: 'gk' },
-    { id: 'lb', name: 'Gvardiol', position: 'def' },
-    { id: 'lcb', name: 'Dias', position: 'def' },
-    { id: 'rcb', name: 'Stones', position: 'def' },
-    { id: 'rb', name: 'Walker', position: 'def' },
-    { id: 'lcm', name: 'Rodri', position: 'mid' },
-    { id: 'cm', name: 'De Bruyne', position: 'mid' },
-    { id: 'rcm', name: 'Bernardo', position: 'mid' },
-    { id: 'lw', name: 'Foden', position: 'fwd' },
-    { id: 'st', name: 'Haaland', position: 'fwd' },
-    { id: 'rw', name: 'Doku', position: 'fwd' },
+    { id: 1, name: 'Ederson', position: 'gk' },
+    { id: 2, name: 'Gvardiol', position: 'lb' },
+    { id: 3, name: 'Dias', position: 'lcb' },
+    { id: 4, name: 'Stones', position: 'rcb' },
+    { id: 5, name: 'Walker', position: 'rb' },
+    { id: 6, name: 'Rodri', position: 'lcm' },
+    { id: 7, name: 'De Bruyne', position: 'cm' },
+    { id: 8, name: 'Bernardo', position: 'rcm' },
+    { id: 9, name: 'Foden', position: 'lw' },
+    { id: 10, name: 'Haaland', position: 'st' },
+    { id: 11, name: 'Doku', position: 'rw' },
 ]
 
 const lineup = computed(() => ({
-    gk: mockSquad.filter((p) => p.position === 'gk'),
-    def: mockSquad.filter((p) => p.position === 'def'),
-    mid: mockSquad.filter((p) => p.position === 'mid'),
-    fwd: mockSquad.filter((p) => p.position === 'fwd'),
+    gk: mockSquad.filter((p) => lineOf(p.position) === 'gk'),
+    def: mockSquad.filter((p) => lineOf(p.position) === 'def'),
+    mid: mockSquad.filter((p) => lineOf(p.position) === 'mid'),
+    fwd: mockSquad.filter((p) => lineOf(p.position) === 'fwd'),
 }))
 </script>
 
