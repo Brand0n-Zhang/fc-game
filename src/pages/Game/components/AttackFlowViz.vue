@@ -37,79 +37,63 @@
             </defs>
 
             <g v-for="(step, i) in chain" :key="i">
-                <line
-                    :class="[
-                        'attack-flow-viz-line',
-                        { 'attack-flow-viz-line--active': i <= activeIndex },
-                        { 'attack-flow-viz-line--goal': step.goal },
-                    ]"
-                    :x1="coords[i].from[0]"
-                    :y1="coords[i].from[1]"
-                    :x2="coords[i].to[0]"
-                    :y2="coords[i].to[1]"
-                    :stroke-dasharray="lineLength(i)"
-                    :stroke-dashoffset="i <= activeIndex ? 0 : lineLength(i)"
-                    :marker-end="step.goal ? 'url(#attack-arrow-goal)' : 'url(#attack-arrow)'"
-                />
-
-                <circle
-                    :class="[
-                        'attack-flow-viz-ball',
-                        { 'attack-flow-viz-ball--active': i <= activeIndex },
-                    ]"
-                    :cx="coords[i].from[0]"
-                    :cy="coords[i].from[1]"
-                    r="4"
-                    :style="{ animationDelay: `${i * 0.6}s` }"
-                >
-                    <animateMotion
-                        v-if="i <= activeIndex"
-                        :dur="'0.6s'"
-                        :begin="`${i * 0.6}s`"
-                        fill="freeze"
-                        path="M0,0"
+                <g v-if="i === activeIndex">
+                    <line
+                        :class="[
+                            'attack-flow-viz-line',
+                            { 'attack-flow-viz-line--goal': step.goal },
+                        ]"
+                        :x1="coords[i].from[0]"
+                        :y1="coords[i].from[1]"
+                        :x2="coords[i].to[0]"
+                        :y2="coords[i].to[1]"
+                        :stroke-dasharray="lineLength(i)"
+                        :stroke-dashoffset="drawn ? 0 : lineLength(i)"
+                        :marker-end="step.goal ? 'url(#attack-arrow-goal)' : 'url(#attack-arrow)'"
                     />
-                </circle>
 
-                <circle
-                    :class="[
-                        'attack-flow-viz-dot',
-                        { 'attack-flow-viz-dot--active': i <= activeIndex },
-                    ]"
-                    :cx="coords[i].to[0]"
-                    :cy="coords[i].to[1]"
-                    r="3"
-                    :style="{ animationDelay: `${i * 0.6 + 0.4}s` }"
-                />
+                    <circle
+                        class="attack-flow-viz-ball"
+                        :cx="coords[i].from[0]"
+                        :cy="coords[i].from[1]"
+                        r="4"
+                    >
+                        <animateMotion
+                            dur="1s"
+                            begin="0s"
+                            fill="freeze"
+                            path="M0,0"
+                        />
+                    </circle>
 
-                <circle
-                    v-if="step.goal"
-                    :class="[
-                        'attack-flow-viz-goal',
-                        { 'attack-flow-viz-goal--active': i <= activeIndex },
-                    ]"
-                    :cx="step.goal[0]"
-                    :cy="step.goal[1]"
-                    r="8"
-                    :style="{ animationDelay: `${i * 0.6 + 0.5}s` }"
-                />
+                    <circle
+                        class="attack-flow-viz-dot"
+                        :cx="coords[i].to[0]"
+                        :cy="coords[i].to[1]"
+                        r="3"
+                    />
 
-                <text
-                    :class="[
-                        'attack-flow-viz-label',
-                        { 'attack-flow-viz-label--active': i <= activeIndex },
-                    ]"
-                    :x="labelX(i)"
-                    :y="labelY(i)"
-                    :style="{ animationDelay: `${i * 0.6}s` }"
-                >{{ step.card }}</text>
+                    <circle
+                        v-if="step.goal"
+                        class="attack-flow-viz-goal"
+                        :cx="step.goal[0]"
+                        :cy="step.goal[1]"
+                        r="8"
+                    />
+
+                    <text
+                        class="attack-flow-viz-label"
+                        :x="labelX(i)"
+                        :y="labelY(i)"
+                    >{{ step.card }}</text>
+                </g>
             </g>
         </svg>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, onBeforeUnmount } from 'vue';
+import { ref, watch, onBeforeUnmount, nextTick } from 'vue';
 import { useSquadStore } from '@/stores/squad';
 
 interface ChainStep {
@@ -132,6 +116,7 @@ const props = defineProps<{
 const store = useSquadStore();
 const activeIndex = ref(-1);
 const coords = ref<Point[]>([]);
+const drawn = ref(false);
 let timer: ReturnType<typeof setInterval> | null = null;
 
 function readPlayerCoords(name: string): [number, number] {
@@ -183,17 +168,21 @@ watch(
         if (val) {
             coords.value = buildCoords();
             activeIndex.value = -1;
+            drawn.value = false;
             let idx = 0;
             timer = setInterval(() => {
                 activeIndex.value = idx;
+                drawn.value = false;
+                nextTick(() => { drawn.value = true; });
                 idx++;
                 if (idx >= props.chain.length) {
                     clearInterval(timer!);
                     timer = null;
                 }
-            }, 600);
+            }, 1200);
         } else {
             activeIndex.value = -1;
+            drawn.value = false;
             coords.value = [];
             if (timer) {
                 clearInterval(timer);
