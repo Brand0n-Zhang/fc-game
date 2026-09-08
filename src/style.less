@@ -1,0 +1,84 @@
+// =====================================================
+// Design Tokens
+// =====================================================
+@bg-deep: #0a1422;
+@bg-base: #0e1a2b;
+@bg-card: #14253d;
+@bg-elevated: #1c3052;
+
+@text-primary: #f8fafc;
+@text-secondary: #cbd5e1;
+@text-muted: #94a3b8;
+@text-faint: #64748b;
+
+@border-base: #1f2d47;
+@border-strong: #2c3e60;
+
+@accent-primary: #38bdf8;
+@accent-success: #22c55e;
+@accent-danger: #ef4444;
+@accent-warning: #f59e0b;
+
+// =====================================================
+// Reset
+// =====================================================
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+// =====================================================
+// Root
+// =====================================================
+:root {
+  color-scheme: dark;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-synthesis: none;
+  background: @bg-base;
+  color: @text-primary;
+}
+
+// =====================================================
+// App Container
+// =====================================================
+#app {
+  min-height: 100dvh;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, @bg-base 0%, @bg-deep 100%);
+}
