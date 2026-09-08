@@ -213,7 +213,7 @@
                 <p class="game-home-modal-hint">{{ stepHint }}</p>
                 <div class="game-home-modal-list">
                     <div
-                        v-for="card in handCards"
+                        v-for="card in secondPickCards"
                         :key="card.id"
                         class="game-home-modal-pickable"
                         @click="selectCard2(card)"
@@ -266,7 +266,11 @@ const cardStore = useCardStore();
 
 // TODO: 临时 mock —— 引擎支持射门/过人/长传后移除
 const shortPassOnly = (c: Card) => c.type === 'short-pass';
-const handCards = ref<Card[]>(cardStore.drawRandom('attack', 6, shortPassOnly));
+const longPassOnly = (c: Card) => c.type === 'long-pass';
+const handCards = ref<Card[]>([
+    ...cardStore.drawRandom('attack', 1, longPassOnly),
+    ...cardStore.drawRandom('attack', 5, shortPassOnly),
+]);
 
 const draggingId = ref<number | null>(null);
 const hoverId = ref<number | null>(null);
@@ -322,6 +326,10 @@ const stepHint = computed(() => {
     }
     return '';
 });
+
+const secondPickCards = computed<Card[]>(() =>
+    handCards.value.filter((c) => c.id !== selectedCards.value[0]?.id),
+);
 
 function openAttackFlow() {
     modalOpen.value = true;
