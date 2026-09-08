@@ -149,7 +149,7 @@ const availablePlayers = computed<Player[]>(() => {
     if (!card) return [];
     const allSlots = store.players.map((p) => p.position);
     if (card.type === 'short-pass') {
-        const slots = nearestTeammates(currentTarget.value.position, allSlots, 2);
+        const slots = nearestTeammates(currentTarget.value.position, allSlots, 3);
         return store.players.filter((p) => slots.includes(p.position));
     }
     if (card.type === 'long-pass') {
@@ -165,12 +165,12 @@ const stepHint = computed(() => {
     if (step.value === 'pick-card') {
         const round = selectedCards.value.length + 1;
         return currentTarget.value
-            ? `第 ${round} 轮 · 目标：${currentTarget.value.name}`
+            ? `第 ${round} 轮 · 当前球员：${currentTarget.value.name}`
             : `第 ${round} 轮`;
     }
     if (step.value === 'pick-player') {
         const card = lastCard.value;
-        if (card?.type === 'short-pass') return '短传：离目标最近的 2 名队友';
+        if (card?.type === 'short-pass') return '短传：离目标最近的 3 名队友';
         if (card?.type === 'long-pass') return '长传：除最近 2 名之外的所有球员';
     }
     return '';
