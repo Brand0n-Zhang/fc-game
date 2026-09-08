@@ -138,13 +138,14 @@ import { ref, computed, onBeforeUnmount } from 'vue';
 
 import CardThumb from './components/CardThumb.vue';
 import PlayerPill from './components/PlayerPill.vue';
+import type { Card } from '@/types/cardType';
 import { useCardStore } from '@/stores/card';
 import { useSquadStore } from '@/stores/squad';
 
 const store = useSquadStore();
 const cardStore = useCardStore();
 
-const handCards = computed(() => cardStore.attack.slice(0, 6));
+const handCards = ref<Card[]>(cardStore.drawRandom('attack', 6));
 
 const draggingId = ref<number | null>(null);
 const hoverId = ref<number | null>(null);
