@@ -36,11 +36,9 @@
         border-radius: 14px;
         overflow: hidden;
         background:
-            repeating-linear-gradient(
-                180deg,
+            repeating-linear-gradient(180deg,
                 transparent 0 36px,
-                rgba(0, 0, 0, 0.06) 36px 72px
-            ),
+                rgba(0, 0, 0, 0.06) 36px 72px),
             linear-gradient(180deg, #3da14e 0%, #2d8a3e 100%);
         box-shadow:
             inset 0 0 0 1px rgba(255, 255, 255, 0.15),
@@ -119,11 +117,106 @@
         padding: 0 6px;
     }
 
-    .game-home-hand-list > * {
+    .game-home-hand-list>* {
         flex: 0 0 auto;
     }
 
-    .game-home-hand-list > * + * {
+    .game-home-hand-list>*+* {
         margin-left: -20px;
     }
+
+    .game-home-action {
+        width: 100%;
+        max-width: 360px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 100%);
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.35);
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    .game-home-action:active {
+        transform: scale(0.98);
+        box-shadow: 0 2px 6px rgba(14, 165, 233, 0.25);
+    }
+}
+
+// Modal 内容通过 Teleport 渲染在 body 下,不在 .game-home 内,
+// 因此弹窗相关规则不能嵌套在 .game-home 里
+.game-home-modal-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+}
+
+.game-home-modal-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #f8fafc;
+}
+
+.game-home-modal-hint {
+    margin: 0;
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.game-home-modal-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0 4px;
+    min-height: 80px;
+    width: 100%;
+}
+
+.game-home-modal-pickable {
+    width: max-content;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.game-home-modal-pickable:active {
+    transform: scale(0.96);
+}
+
+.game-home-modal-summary {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 12px 16px;
+    width: 100%;
+    text-align: left;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    font-size: 14px;
+    color: #cbd5e1;
+
+    li {
+        padding: 4px 0;
+    }
+}
+
+.game-home-modal-confirm {
+    width: 100%;
+    max-width: 200px;
+    height: 40px;
+    margin-top: 8px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 100%);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    box-shadow: 0 3px 10px rgba(14, 165, 233, 0.3);
 }

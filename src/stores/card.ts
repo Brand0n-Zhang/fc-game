@@ -73,8 +73,9 @@ export const useCardStore = defineStore('card', () => {
         return all.value.filter((c) => c.type === type)
     }
 
-    function drawRandom(side: DeckSide, n: number): Card[] {
-        const pool = side === 'attack' ? attack.value : defense.value
+    function drawRandom(side: DeckSide, n: number, filter?: (c: Card) => boolean): Card[] {
+        const all = side === 'attack' ? attack.value : defense.value
+        const pool = filter ? all.filter(filter) : all
         const copy = [...pool]
         for (let i = copy.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1))

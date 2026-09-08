@@ -1,5 +1,8 @@
 <template>
-    <div class="card-thumb" :class="`card-thumb-${cardTypeSide}`">
+    <div
+        class="card-thumb"
+        :class="`card-thumb-${cardTypeSide}`"
+    >
         <span class="card-thumb-type">{{ typeLabel }}</span>
         <span class="card-thumb-name">{{ card.name.zh }}</span>
         <span class="card-thumb-cost">{{ card.cost }}</span>
