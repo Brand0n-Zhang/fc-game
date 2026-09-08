@@ -5,37 +5,6 @@
             viewBox="0 0 300 400"
             preserveAspectRatio="xMidYMid meet"
         >
-            <defs>
-                <marker
-                    id="attack-arrow"
-                    viewBox="0 0 10 7"
-                    refX="10"
-                    refY="3.5"
-                    markerWidth="8"
-                    marker-height="6"
-                    orient="auto"
-                >
-                    <polygon
-                        points="0 0, 10 3.5, 0 7"
-                        fill="#00e676"
-                    />
-                </marker>
-                <marker
-                    id="attack-arrow-goal"
-                    viewBox="0 0 10 7"
-                    refX="10"
-                    refY="3.5"
-                    markerWidth="10"
-                    marker-height="7"
-                    orient="auto"
-                >
-                    <polygon
-                        points="0 0, 10 3.5, 0 7"
-                        fill="#ff5252"
-                    />
-                </marker>
-            </defs>
-
             <g v-for="(step, i) in chain" :key="i">
                 <g v-if="i === activeIndex">
                     <line
@@ -47,9 +16,16 @@
                         :y1="coords[i].from[1]"
                         :x2="coords[i].to[0]"
                         :y2="coords[i].to[1]"
-                        :stroke-dasharray="lineLength(i)"
-                        :stroke-dashoffset="drawn ? 0 : lineLength(i)"
-                        :marker-end="step.goal ? 'url(#attack-arrow-goal)' : 'url(#attack-arrow)'"
+                        :style="{ '--line-len': lineLength(i) + 'px' }"
+                    />
+
+                    <polygon
+                        :class="[
+                            'attack-flow-viz-arrow',
+                            { 'attack-flow-viz-arrow--goal': step.goal },
+                        ]"
+                        points="0 0, -10 -5, -10 5"
+                        :transform="arrowTransform(i)"
                     />
 
                     <circle
@@ -59,10 +35,10 @@
                         r="4"
                     >
                         <animateMotion
-                            dur="1s"
-                            begin="0s"
+                            dur="0.5s"
+                            begin="1s"
                             fill="freeze"
-                            path="M0,0"
+                            :path="ballPath(i)"
                         />
                     </circle>
 
@@ -93,7 +69,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, onBeforeUnmount, nextTick } from 'vue';
+import { ref, watch, onBeforeUnmount } from 'vue';
 import { useSquadStore } from '@/stores/squad';
 
 interface ChainStep {
@@ -116,7 +92,6 @@ const props = defineProps<{
 const store = useSquadStore();
 const activeIndex = ref(-1);
 const coords = ref<Point[]>([]);
-const drawn = ref(false);
 let timer: ReturnType<typeof setInterval> | null = null;
 
 function readPlayerCoords(name: string): [number, number] {
@@ -162,27 +137,41 @@ function lineLength(i: number): number {
     return Math.hypot(tx - fx, ty - fy);
 }
 
+function arrowAngle(i: number): number {
+    const [fx, fy] = coords.value[i].from;
+    const [tx, ty] = coords.value[i].to;
+    return Math.atan2(ty - fy, tx - fx) * (180 / Math.PI);
+}
+
+function arrowTransform(i: number): string {
+    const [tx, ty] = coords.value[i].to;
+    const angle = arrowAngle(i);
+    return `translate(${tx}, ${ty}) rotate(${angle})`;
+}
+
+function ballPath(i: number): string {
+    const [fx, fy] = coords.value[i].from;
+    const [tx, ty] = coords.value[i].to;
+    return `M0,0 L${tx - fx},${ty - fy}`;
+}
+
 watch(
     () => props.visible,
     (val) => {
         if (val) {
             coords.value = buildCoords();
             activeIndex.value = -1;
-            drawn.value = false;
             let idx = 0;
             timer = setInterval(() => {
                 activeIndex.value = idx;
-                drawn.value = false;
-                nextTick(() => { drawn.value = true; });
                 idx++;
                 if (idx >= props.chain.length) {
                     clearInterval(timer!);
                     timer = null;
                 }
-            }, 1200);
+            }, 1600);
         } else {
             activeIndex.value = -1;
-            drawn.value = false;
             coords.value = [];
             if (timer) {
                 clearInterval(timer);
