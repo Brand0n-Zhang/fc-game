@@ -225,13 +225,13 @@ function rollStep(i: number): boolean {
     const step = props.chain[i];
     const value = getAbilityValue(step);
     if (value == null) return true;
-    if (step.type === 'long-pass') {
-        const fromCoord = readPlayerCoords(step.from);
-        const toCoord = step.goal ?? readPlayerCoords(step.to);
-        const finalRate = computeLongPassRate(fromCoord, toCoord, value);
-        return Math.random() * 100 < finalRate;
+    if (step.type === 'shoot') {
+        return Math.random() * 100 < value;
     }
-    return Math.random() * 100 < value;
+    const fromCoord = readPlayerCoords(step.from);
+    const toCoord = step.goal ?? readPlayerCoords(step.to);
+    const finalRate = computePassRate(fromCoord, toCoord, value);
+    return Math.random() * 100 < finalRate;
 }
 
 function distanceToSegment(
@@ -250,18 +250,18 @@ function distanceToSegment(
     return Math.hypot(point[0] - projX, point[1] - projY);
 }
 
-function computeLongPassRate(
+function computePassRate(
     from: [number, number],
     to: [number, number],
     baseRate: number,
 ): number {
     const distance = Math.hypot(to[0] - from[0], to[1] - from[1]);
-    const distancePenalty =
-        (distance / FIELD_DIAGONAL) * LONG_PASS_DISTANCE_PENALTY_MAX;
+    const distRatio = distance / FIELD_DIAGONAL;
+    const distancePenalty = distRatio * LONG_PASS_DISTANCE_PENALTY_MAX;
     const blockersCount = OPPS_POSITIONS.filter(
         (opp) => distanceToSegment(from, to, opp) < LONG_PASS_BLOCKER_THRESHOLD,
     ).length;
-    const blockerPenalty = blockersCount * LONG_PASS_BLOCKER_PENALTY;
+    const blockerPenalty = blockersCount * LONG_PASS_BLOCKER_PENALTY * distRatio;
     return Math.max(
         LONG_PASS_MIN_RATE,
         Math.min(LONG_PASS_MAX_RATE, baseRate - distancePenalty - blockerPenalty),
