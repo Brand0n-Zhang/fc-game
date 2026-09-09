@@ -14,12 +14,13 @@ export function useFieldDrag(fieldRef: Ref<HTMLElement | null>) {
     let pillHPct = 0
     let dragStartPct: { topPct: number; leftPct: number } | null = null
 
-    function findNearestSlot(topPct: number, leftPct: number): Slot {
+    function findNearestSlot(topPct: number, leftPct: number, excludeGk = false): Slot {
         const cx = leftPct * 300
         const cy = topPct * 400
         let best: Slot = 'gk'
         let bestDist = Infinity
         for (const slot of Object.keys(SLOT_COORDS) as Slot[]) {
+            if (excludeGk && slot === 'gk') continue
             const [sx, sy] = SLOT_COORDS[slot]
             const d = Math.hypot(sx - cx, sy - cy)
             if (d < bestDist) {
@@ -77,7 +78,7 @@ export function useFieldDrag(fieldRef: Ref<HTMLElement | null>) {
             } else {
                 const coord = store.pillCoords[id]
                 if (coord) {
-                    const slot = findNearestSlot(coord.topPct, coord.leftPct)
+                    const slot = findNearestSlot(coord.topPct, coord.leftPct, true)
                     store.updatePosition(id, slot)
                 }
             }
