@@ -18,17 +18,17 @@ const slotOrder: Record<Line, Slot[]> = {
 }
 
 const initialSquad: Player[] = [
-    { id: 1, name: 'Ederson', position: 'gk' },
-    { id: 2, name: 'Gvardiol', position: 'lb' },
-    { id: 3, name: 'Dias', position: 'lcb' },
-    { id: 4, name: 'Stones', position: 'rcb' },
-    { id: 5, name: 'Walker', position: 'rb' },
-    { id: 6, name: 'Rodri', position: 'lcm' },
-    { id: 7, name: 'De Bruyne', position: 'cm' },
-    { id: 8, name: 'Bernardo', position: 'rcm' },
-    { id: 9, name: 'Foden', position: 'lw' },
-    { id: 10, name: 'Haaland', position: 'st' },
-    { id: 11, name: 'Doku', position: 'rw' },
+    { id: 1, name: 'Ederson', position: 'gk', shortPass: 60, longPass: 88, shooting: 20 },
+    { id: 2, name: 'Gvardiol', position: 'lb', shortPass: 78, longPass: 75, shooting: 55 },
+    { id: 3, name: 'Dias', position: 'lcb', shortPass: 82, longPass: 68, shooting: 40 },
+    { id: 4, name: 'Stones', position: 'rcb', shortPass: 90, longPass: 80, shooting: 50 },
+    { id: 5, name: 'Walker', position: 'rb', shortPass: 75, longPass: 62, shooting: 45 },
+    { id: 6, name: 'Rodri', position: 'lcm', shortPass: 93, longPass: 86, shooting: 65 },
+    { id: 7, name: 'De Bruyne', position: 'cm', shortPass: 92, longPass: 97, shooting: 88 },
+    { id: 8, name: 'Bernardo', position: 'rcm', shortPass: 90, longPass: 78, shooting: 72 },
+    { id: 9, name: 'Foden', position: 'lw', shortPass: 86, longPass: 76, shooting: 84 },
+    { id: 10, name: 'Haaland', position: 'st', shortPass: 70, longPass: 50, shooting: 96 },
+    { id: 11, name: 'Doku', position: 'rw', shortPass: 72, longPass: 58, shooting: 78 },
 ]
 
 export const useSquadStore = defineStore('squad', () => {

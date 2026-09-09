@@ -17,4 +17,7 @@ export interface Player {
     id: number
     name: string
     position: Slot
+    shortPass: number
+    longPass: number
+    shooting: number
 }
