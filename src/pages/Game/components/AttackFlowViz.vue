@@ -77,7 +77,7 @@
 
 <script lang="ts" setup>
 import { ref, watch, onBeforeUnmount } from 'vue';
-import { OPPS_POSITIONS } from '@/game/slots';
+import { OPPS_INTERCEPTIONS, OPPS_POSITIONS, OPPS_SAVING } from '@/game/slots';
 import { useSquadStore } from '@/stores/squad';
 
 type ChainAction = 'short-pass' | 'long-pass' | 'dribble' | 'shoot';
@@ -123,15 +123,22 @@ const ACTION_LABEL: Record<ChainAction, string> = {
     shoot: '射门',
 };
 
-// 传球成功率公式参数(短传 / 长传 / 射门共享,shoot 走纯能力值分支)
-// finalRate = clamp(shortPass/longPass - distancePenalty - blockerPenalty, MIN, MAX)
-//   distancePenalty = (distance / FIELD_DIAGONAL) * DISTANCE_PENALTY_MAX
-//   blockerPenalty  = sum(opp.interception/100 * BLOCKER_PENALTY) * (distance/FIELD_DIAGONAL)
-const LONG_PASS_DISTANCE_PENALTY_MAX = 30; // 距离最远(对角线)时扣掉的最大百分点
-const LONG_PASS_BLOCKER_PENALTY = 15;      // 单个满值拦截者(100)的最大惩罚基数
-const LONG_PASS_BLOCKER_THRESHOLD = 25;    // 对方距传球线 <25 SVG 单位视为"在路径上"
-const LONG_PASS_MIN_RATE = 5;              // 最低成功率下限,避免必败
-const LONG_PASS_MAX_RATE = 95;             // 最高成功率上限,避免必成
+// 传球成功率公式参数(短传 / 长传共用,shoot 走专属公式)
+// pass:  finalRate = clamp(shortPass/longPass - distancePenalty - blockerPenalty, MIN, MAX)
+//        distancePenalty = (distance / FIELD_DIAGONAL) × DISTANCE_PENALTY_MAX
+//        blockerPenalty  = sum(opp.interception/100 × BLOCKER_PENALTY) × (distance/FIELD_DIAGONAL)
+// shoot: finalRate = clamp(shooting - distancePenalty - blockerPenalty - savingPenalty, MIN, MAX)
+//        distancePenalty = (distance / FIELD_DIAGONAL) × SHOOT_DISTANCE_PENALTY_MAX  // shoot 专属,比 pass 更严厉
+//        blockerPenalty  = sum(opp.interception/100 × BLOCKER_PENALTY) × distRatio  // 排除 GK
+//        savingPenalty   = (oppGk.saving / 100) × SAVE_PENALTY × distRatio
+// computePassRate 与 computeShootRate 结构一致,只是 shoot 把 GK 当 saving 而非 blocker
+const LONG_PASS_DISTANCE_PENALTY_MAX = 30;        // 传球距离惩罚上限
+const LONG_PASS_SHOOT_DISTANCE_PENALTY_MAX = 50;  // 射门距离惩罚上限(更严厉,远射大幅压制)
+const LONG_PASS_BLOCKER_PENALTY = 15;             // 单个满值拦截者(100)的最大惩罚基数
+const LONG_PASS_BLOCKER_THRESHOLD = 25;           // 对方距传球线 <25 SVG 单位视为"在路径上"
+const LONG_PASS_SAVE_PENALTY = 15;                // 满值门将扑救的最大惩罚基数,与 BLOCKER_PENALTY 同量级
+const LONG_PASS_MIN_RATE = 5;                     // 最低成功率下限,避免必败
+const LONG_PASS_MAX_RATE = 95;                    // 最高成功率上限,避免必成
 const FIELD_DIAGONAL = Math.hypot(300, 400); // 球场 viewBox 对角线,用于距离归一化
 
 function readPlayerCoords(name: string): [number, number] {
@@ -230,7 +237,10 @@ function rollStep(i: number): boolean {
     const value = getAbilityValue(step);
     if (value == null) return true;
     if (step.type === 'shoot') {
-        return Math.random() * 100 < value;
+        const fromCoord = readPlayerCoords(step.from);
+        const toCoord = step.goal ?? readPlayerCoords(step.to);
+        const finalRate = computeShootRate(fromCoord, toCoord, value);
+        return Math.random() * 100 < finalRate;
     }
     const fromCoord = readPlayerCoords(step.from);
     const toCoord = step.goal ?? readPlayerCoords(step.to);
@@ -269,6 +279,31 @@ function computePassRate(
     return Math.max(
         LONG_PASS_MIN_RATE,
         Math.min(LONG_PASS_MAX_RATE, baseRate - distancePenalty - blockerPenalty),
+    );
+}
+
+function computeShootRate(
+    from: [number, number],
+    to: [number, number],
+    baseRate: number,
+): number {
+    const distance = Math.hypot(to[0] - from[0], to[1] - from[1]);
+    const distRatio = distance / FIELD_DIAGONAL;
+    const distancePenalty = distRatio * LONG_PASS_SHOOT_DISTANCE_PENALTY_MAX;
+    const blockerPenalty = OPPS_POSITIONS.slice(1).reduce((sum, opp, i) => {
+        if (distanceToSegment(from, to, opp) < LONG_PASS_BLOCKER_THRESHOLD) {
+            return sum + (OPPS_INTERCEPTIONS[i + 1] / 100) * LONG_PASS_BLOCKER_PENALTY;
+        }
+        return sum;
+    }, 0) * distRatio;
+    const savingPenalty =
+        (OPPS_SAVING[0] / 100) * LONG_PASS_SAVE_PENALTY * distRatio;
+    return Math.max(
+        LONG_PASS_MIN_RATE,
+        Math.min(
+            LONG_PASS_MAX_RATE,
+            baseRate - distancePenalty - blockerPenalty - savingPenalty,
+        ),
     );
 }
 

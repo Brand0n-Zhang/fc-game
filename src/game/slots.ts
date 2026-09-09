@@ -38,3 +38,21 @@ export const OPPS_POSITIONS: Array<[number, number]> = [
     // fwd (LW, ST, RW)
     [60, 270], [150, 270], [240, 270],
 ]
+
+// Opponent interception values, parallel to OPPS_POSITIONS (gk first, then def/mid/fwd).
+// Used by pass / shoot blocker formula: each defender in path reduces rate by interception/100 × penalty × distRatio.
+export const OPPS_INTERCEPTIONS: number[] = [
+    50, // gk
+    50, 50, 50, 50, // def
+    50, 50, 50, 50, // mid
+    50, 50, 50, // fwd
+]
+
+// Opponent saving values, parallel to OPPS_POSITIONS (gk first, then def/mid/fwd).
+// Used by shoot formula: GK saving penalty scaled by distance ratio.
+export const OPPS_SAVING: number[] = [
+    65, // gk: Raya
+    0, 0, 0, 0, // def
+    0, 0, 0, 0, // mid
+    0, 0, 0, // fwd
+]
