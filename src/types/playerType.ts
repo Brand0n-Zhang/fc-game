@@ -18,4 +18,5 @@ export interface Player {
     shortPass: number
     longPass: number
     shooting: number
+    saving: number
 }
