@@ -18,7 +18,7 @@ const slotOrder: Record<Line, Slot[]> = {
 }
 
 const initialSquad: Player[] = [
-    { id: 1, name: 'Ederson', position: 'gk', shortPass: 60, longPass: 88, shooting: 20 },
+    { id: 1, name: 'Ederson', position: 'gk', shortPass: 99, longPass: 1, shooting: 20 },
     { id: 2, name: 'Gvardiol', position: 'lb', shortPass: 78, longPass: 75, shooting: 55 },
     { id: 3, name: 'Dias', position: 'lcb', shortPass: 82, longPass: 68, shooting: 40 },
     { id: 4, name: 'Stones', position: 'rcb', shortPass: 90, longPass: 80, shooting: 50 },

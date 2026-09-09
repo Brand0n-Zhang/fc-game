@@ -8,54 +8,53 @@
             <g v-for="(step, i) in chain" :key="i">
                 <g v-if="i === activeIndex">
                     <line
-                        :class="[
-                            'attack-flow-viz-line',
-                            { 'attack-flow-viz-line--goal': step.goal },
-                        ]"
+                        :class="lineClass(i)"
                         :x1="coords[i].from[0]"
                         :y1="coords[i].from[1]"
                         :x2="coords[i].to[0]"
                         :y2="coords[i].to[1]"
-                        :style="{ '--line-len': lineLength(i) + 'px' }"
+                        :style="lineStyle(i)"
                     />
 
-                    <polygon
-                        :class="[
-                            'attack-flow-viz-arrow',
-                            { 'attack-flow-viz-arrow--goal': step.goal },
-                        ]"
-                        points="0 0, -10 -5, -10 5"
-                        :transform="arrowTransform(i)"
-                    />
-
-                    <circle
-                        class="attack-flow-viz-ball"
-                        :cx="coords[i].from[0]"
-                        :cy="coords[i].from[1]"
-                        r="4"
-                    >
-                        <animateMotion
-                            dur="0.5s"
-                            begin="1s"
-                            fill="freeze"
-                            :path="ballPath(i)"
+                    <template v-if="!isFailed(i)">
+                        <polygon
+                            :class="[
+                                'attack-flow-viz-arrow',
+                                { 'attack-flow-viz-arrow--goal': step.goal },
+                            ]"
+                            points="0 0, -10 -5, -10 5"
+                            :transform="arrowTransform(i)"
                         />
-                    </circle>
 
-                    <circle
-                        class="attack-flow-viz-dot"
-                        :cx="coords[i].to[0]"
-                        :cy="coords[i].to[1]"
-                        r="3"
-                    />
+                        <circle
+                            class="attack-flow-viz-ball"
+                            :cx="coords[i].from[0]"
+                            :cy="coords[i].from[1]"
+                            r="4"
+                        >
+                            <animateMotion
+                                dur="0.5s"
+                                begin="1s"
+                                fill="freeze"
+                                :path="ballPath(i)"
+                            />
+                        </circle>
 
-                    <circle
-                        v-if="step.goal"
-                        class="attack-flow-viz-goal"
-                        :cx="step.goal[0]"
-                        :cy="step.goal[1]"
-                        r="8"
-                    />
+                        <circle
+                            class="attack-flow-viz-dot"
+                            :cx="coords[i].to[0]"
+                            :cy="coords[i].to[1]"
+                            r="3"
+                        />
+
+                        <circle
+                            v-if="step.goal"
+                            class="attack-flow-viz-goal"
+                            :cx="step.goal[0]"
+                            :cy="step.goal[1]"
+                            r="8"
+                        />
+                    </template>
 
                     <text
                         class="attack-flow-viz-label"
@@ -65,6 +64,16 @@
                 </g>
             </g>
         </svg>
+
+        <div v-if="failureInfo" class="attack-flow-viz-toast">
+            <p class="attack-flow-viz-toast-title">传球失败</p>
+            <p class="attack-flow-viz-toast-msg">
+                {{ failureInfo.player }} 的{{ failureInfo.abilityLabel }}能力值仅
+                <strong>{{ failureInfo.value }}</strong>
+                ，未能完成{{ failureInfo.actionLabel }}!
+            </p>
+            <button class="attack-flow-viz-toast-btn" @click="emit('close')">关闭</button>
+        </div>
     </div>
 </template>
 
@@ -72,8 +81,11 @@
 import { ref, watch, onBeforeUnmount } from 'vue';
 import { useSquadStore } from '@/stores/squad';
 
+type ChainAction = 'short-pass' | 'long-pass' | 'dribble' | 'shoot';
+
 interface ChainStep {
     card: string;
+    type: ChainAction;
     from: string;
     to: string;
     goal?: [number, number];
@@ -84,15 +96,40 @@ interface Point {
     to: [number, number];
 }
 
+interface FailureInfo {
+    player: string;
+    abilityLabel: string;
+    actionLabel: string;
+    value: number;
+}
+
 const props = defineProps<{
     chain: ChainStep[];
     visible: boolean;
 }>();
 
+const emit = defineEmits<{
+    close: [];
+}>();
+
 const store = useSquadStore();
 const activeIndex = ref(-1);
+const failedIndex = ref<number | null>(null);
+const failureInfo = ref<FailureInfo | null>(null);
 const coords = ref<Point[]>([]);
 let timer: ReturnType<typeof setInterval> | null = null;
+
+const ABILITY_LABEL: Record<Exclude<ChainAction, 'dribble' | 'shoot'>, string> = {
+    'short-pass': '短传',
+    'long-pass': '长传',
+};
+
+const ACTION_LABEL: Record<ChainAction, string> = {
+    'short-pass': '短传',
+    'long-pass': '长传',
+    dribble: '过人',
+    shoot: '射门',
+};
 
 function readPlayerCoords(name: string): [number, number] {
     const player = store.players.find((p) => p.name === name);
@@ -117,6 +154,27 @@ function buildCoords(): Point[] {
         from: readPlayerCoords(step.from),
         to: step.goal ?? readPlayerCoords(step.to),
     }));
+}
+
+function isFailed(i: number): boolean {
+    return failedIndex.value === i;
+}
+
+function lineClass(i: number): Array<string | Record<string, boolean>> {
+    const step = props.chain[i];
+    return [
+        'attack-flow-viz-line',
+        { 'attack-flow-viz-line--goal': !!step.goal },
+        { 'attack-flow-viz-line--fail': isFailed(i) },
+    ];
+}
+
+function lineStyle(i: number): Record<string, string> {
+    const len = lineLength(i) + 'px';
+    if (isFailed(i)) {
+        return { '--line-len': len, '--line-len-fail': len };
+    }
+    return { '--line-len': len };
 }
 
 function labelX(i: number): number {
@@ -155,34 +213,76 @@ function ballPath(i: number): string {
     return `M0,0 L${tx - fx},${ty - fy}`;
 }
 
+function getAbilityValue(step: ChainStep): number | null {
+    const player = store.players.find((p) => p.name === step.from);
+    if (!player) return null;
+    if (step.type === 'short-pass') return player.shortPass;
+    if (step.type === 'long-pass') return player.longPass;
+    if (step.type === 'shoot') return player.shooting;
+    return null;
+}
+
+function rollStep(i: number): boolean {
+    const step = props.chain[i];
+    const value = getAbilityValue(step);
+    if (value == null) return true;
+    return Math.random() * 100 < value;
+}
+
+function failStep(i: number): void {
+    const step = props.chain[i];
+    const value = getAbilityValue(step);
+    failedIndex.value = i;
+    failureInfo.value = {
+        player: step.from,
+        abilityLabel: step.type === 'shoot' ? '射门' : ABILITY_LABEL[step.type as 'short-pass' | 'long-pass'],
+        actionLabel: ACTION_LABEL[step.type],
+        value: value ?? 0,
+    };
+}
+
+function clearTimer(): void {
+    if (timer) {
+        clearInterval(timer);
+        timer = null;
+    }
+}
+
 watch(
     () => props.visible,
     (val) => {
         if (val) {
             coords.value = buildCoords();
             activeIndex.value = -1;
+            failedIndex.value = null;
+            failureInfo.value = null;
             let idx = 0;
             timer = setInterval(() => {
+                if (idx >= props.chain.length) {
+                    clearTimer();
+                    return;
+                }
+                if (!rollStep(idx)) {
+                    failStep(idx);
+                    activeIndex.value = idx;
+                    clearTimer();
+                    return;
+                }
                 activeIndex.value = idx;
                 idx++;
-                if (idx >= props.chain.length) {
-                    clearInterval(timer!);
-                    timer = null;
-                }
             }, 1600);
         } else {
             activeIndex.value = -1;
+            failedIndex.value = null;
+            failureInfo.value = null;
             coords.value = [];
-            if (timer) {
-                clearInterval(timer);
-                timer = null;
-            }
+            clearTimer();
         }
     },
 );
 
 onBeforeUnmount(() => {
-    if (timer) clearInterval(timer);
+    clearTimer();
 });
 </script>
 

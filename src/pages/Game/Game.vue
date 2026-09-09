@@ -119,7 +119,11 @@
                     />
                 </div>
 
-                <AttackFlowViz :chain="attackChain" :visible="showViz" />
+                <AttackFlowViz
+                    :chain="attackChain"
+                    :visible="showViz"
+                    @close="onVizClose"
+                />
             </div>
 
             <div class="game-home-hand">
@@ -164,8 +168,17 @@ const handCards = ref<Card[]>([
     ...cardStore.drawRandom('attack', 5, shortPassOnly),
 ]);
 
+type ChainAction = 'short-pass' | 'long-pass' | 'dribble' | 'shoot';
+interface ChainStep {
+    card: string;
+    type: ChainAction;
+    from: string;
+    to: string;
+    goal?: [number, number];
+}
+
 const modalOpen = ref(false);
-const attackChain = ref<Array<{ card: string; from: string; to: string; goal?: [number, number] }>>([]);
+const attackChain = ref<ChainStep[]>([]);
 const showViz = ref(false);
 
 const draggingId = ref<number | null>(null);
@@ -184,8 +197,9 @@ const dragY = computed(() =>
 
 function onAttackFinish(cards: Card[], targets: Player[], shoot: boolean) {
     const gk = store.players.find((p) => p.position === 'gk');
-    const chain: Array<{ card: string; from: string; to: string; goal?: [number, number] }> = cards.map((card, i) => ({
+    const chain: ChainStep[] = cards.map((card, i) => ({
         card: card.name.zh,
+        type: card.type as ChainAction,
         from: i === 0 ? gk?.name ?? '门将' : targets[i - 1]?.name ?? '未知',
         to: targets[i]?.name ?? '未知',
     }));
@@ -193,11 +207,16 @@ function onAttackFinish(cards: Card[], targets: Player[], shoot: boolean) {
         const shooter = targets.length > 0
             ? targets[targets.length - 1]?.name ?? '未知'
             : gk?.name ?? '门将';
-        chain.push({ card: '射门', from: shooter, to: '球门', goal: [150, 20] });
+        chain.push({ card: '射门', type: 'shoot', from: shooter, to: '球门', goal: [150, 20] });
     }
     console.log('进攻链路：', chain);
     attackChain.value = chain;
     showViz.value = true;
+}
+
+function onVizClose() {
+    showViz.value = false;
+    attackChain.value = [];
 }
 
 const handlePointerMove = (e: PointerEvent) => {
