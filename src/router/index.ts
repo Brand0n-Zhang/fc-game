@@ -1,17 +1,24 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
 import Game from '@/pages/Game/Game.vue'
+import Prepare from '@/pages/Prepare/Prepare.vue'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
+    name: 'Prepare',
+    component: Prepare,
+    meta: { title: '组建阵容' },
+  },
+  {
+    path: '/game',
     name: 'Game',
     component: Game,
     meta: { title: 'Football Clash Cards' },
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: { name: 'Game' },
+    redirect: { name: 'Prepare' },
   },
 ]
 

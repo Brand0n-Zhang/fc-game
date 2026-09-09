@@ -4,6 +4,7 @@
         :class="{
             'is-dragging': isDragging,
             'is-conflict': isConflict,
+            'is-static': !draggable,
         }"
         :data-player-id="player.id"
         :style="pillStyle"
@@ -24,6 +25,7 @@ const props = defineProps<{
     leftPct: number
     isDragging: boolean
     isConflict: boolean
+    draggable?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -37,6 +39,7 @@ const pillStyle = computed(() => ({
 }))
 
 const onPointerDown = (e: PointerEvent) => {
+    if (props.draggable === false) return
     emit('dragstart', props.player.id, e.clientX, e.clientY)
 }
 </script>

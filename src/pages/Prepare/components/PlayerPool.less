@@ -1,0 +1,49 @@
+.pool-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 12px;
+}
+
+.pool-card {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 10px 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.1s ease, background 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pool-card:hover {
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.pool-card:active {
+    transform: scale(0.97);
+    background: rgba(56, 189, 248, 0.25);
+}
+
+.pool-card-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #f1f5f9;
+}
+
+.pool-card-pos {
+    font-size: 11px;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
+}
+
+.pool-card-stats {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 10px;
+    color: #cbd5e1;
+    flex-wrap: wrap;
+}

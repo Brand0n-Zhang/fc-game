@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
+import { SLOT_COORDS } from '@/game/slots'
 import type { Line, Player, Slot } from '@/types/playerType'
 
 function lineOf(position: Slot): Line {
@@ -16,6 +17,9 @@ const slotOrder: Record<Line, Slot[]> = {
     mid: ['lcm', 'cm', 'rcm'],
     fwd: ['lw', 'st', 'rw'],
 }
+
+const SLOT_VIEW_WIDTH = 300
+const SLOT_VIEW_HEIGHT = 400
 
 const initialSquad: Player[] = [
     { id: 1, name: 'Ederson', position: 'gk', shortPass: 99, longPass: 1, shooting: 20 },
@@ -33,6 +37,8 @@ const initialSquad: Player[] = [
 
 export const useSquadStore = defineStore('squad', () => {
     const players = ref<Player[]>([...initialSquad])
+    const pillCoords = ref<Record<number, { topPct: number; leftPct: number }>>({})
+    const conflictIds = ref<Set<number>>(new Set())
 
     const lineup = computed(() => {
         const sortBySlot = (line: Line) => (a: Player, b: Player) =>
@@ -60,5 +66,55 @@ export const useSquadStore = defineStore('squad', () => {
         if (p) p.position = slot
     }
 
-    return { players, lineup, swapPositions, updatePosition }
+    function placeAtCenter(id: number): void {
+        pillCoords.value = {
+            ...pillCoords.value,
+            [id]: { topPct: 0.5, leftPct: 0.5 },
+        }
+    }
+
+    function setCoord(id: number, topPct: number, leftPct: number): void {
+        pillCoords.value = {
+            ...pillCoords.value,
+            [id]: { topPct, leftPct },
+        }
+    }
+
+    function placeGk(): void {
+        const gk = players.value.find((p) => p.position === 'gk')
+        if (!gk) return
+        const [sx, sy] = SLOT_COORDS['gk']
+        pillCoords.value = {
+            ...pillCoords.value,
+            [gk.id]: { topPct: sy / SLOT_VIEW_HEIGHT, leftPct: sx / SLOT_VIEW_WIDTH },
+        }
+    }
+
+    function resetCoordsFromSlots(): void {
+        const next: Record<number, { topPct: number; leftPct: number }> = {}
+        for (const p of players.value) {
+            const [sx, sy] = SLOT_COORDS[p.position]
+            next[p.id] = { topPct: sy / SLOT_VIEW_HEIGHT, leftPct: sx / SLOT_VIEW_WIDTH }
+        }
+        pillCoords.value = next
+    }
+
+    function clearCoords(): void {
+        pillCoords.value = {}
+        conflictIds.value = new Set()
+    }
+
+    return {
+        players,
+        lineup,
+        pillCoords,
+        conflictIds,
+        swapPositions,
+        updatePosition,
+        placeAtCenter,
+        setCoord,
+        placeGk,
+        resetCoordsFromSlots,
+        clearCoords,
+    }
 })
