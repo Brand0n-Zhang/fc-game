@@ -123,12 +123,16 @@ const ACTION_LABEL: Record<ChainAction, string> = {
     shoot: '射门',
 };
 
-const LONG_PASS_DISTANCE_PENALTY_MAX = 30;
-const LONG_PASS_BLOCKER_PENALTY = 15;
-const LONG_PASS_BLOCKER_THRESHOLD = 25;
-const LONG_PASS_MIN_RATE = 5;
-const LONG_PASS_MAX_RATE = 95;
-const FIELD_DIAGONAL = Math.hypot(300, 400);
+// 传球成功率公式参数(短传 / 长传 / 射门共享,shoot 走纯能力值分支)
+// finalRate = clamp(shortPass/longPass - distancePenalty - blockerPenalty, MIN, MAX)
+//   distancePenalty = (distance / FIELD_DIAGONAL) * DISTANCE_PENALTY_MAX
+//   blockerPenalty  = sum(opp.interception/100 * BLOCKER_PENALTY) * (distance/FIELD_DIAGONAL)
+const LONG_PASS_DISTANCE_PENALTY_MAX = 30; // 距离最远(对角线)时扣掉的最大百分点
+const LONG_PASS_BLOCKER_PENALTY = 15;      // 单个满值拦截者(100)的最大惩罚基数
+const LONG_PASS_BLOCKER_THRESHOLD = 25;    // 对方距传球线 <25 SVG 单位视为"在路径上"
+const LONG_PASS_MIN_RATE = 5;              // 最低成功率下限,避免必败
+const LONG_PASS_MAX_RATE = 95;             // 最高成功率上限,避免必成
+const FIELD_DIAGONAL = Math.hypot(300, 400); // 球场 viewBox 对角线,用于距离归一化
 
 function readPlayerCoords(name: string): [number, number] {
     const player = store.players.find((p) => p.name === name);
