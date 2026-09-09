@@ -6,50 +6,70 @@
         </header>
 
         <div class="prepare-stage">
-            <div class="prepare-field" ref="fieldRef">
+            <div
+                class="prepare-field"
+                ref="fieldRef"
+            >
                 <svg
                     class="prepare-field-svg"
                     viewBox="0 0 300 400"
-                    preserveAspectRatio="XMidYMid meet"
+                    preserveAspectRatio="xMidYMid meet"
                 >
-                    <rect class="prepare-field-outline" x="0" y="0" width="300" height="400" />
-                    <line class="prepare-field-line" x1="0" y1="200" x2="300" y2="200" />
-                    <circle class="prepare-field-circle" cx="150" cy="200" r="30" />
-                    <circle class="prepare-field-spot" cx="150" cy="200" r="1.5" />
-                    <rect class="prepare-field-box" x="60" y="0" width="180" height="50" />
-                    <rect class="prepare-field-box" x="110" y="0" width="80" height="20" />
-                    <rect class="prepare-field-box" x="60" y="350" width="180" height="50" />
-                    <rect class="prepare-field-box" x="110" y="380" width="80" height="20" />
+                    <rect
+                        class="prepare-field-outline"
+                        x="0"
+                        y="0"
+                        width="300"
+                        height="400"
+                    />
+                    <line
+                        class="prepare-field-line"
+                        x1="0"
+                        y1="200"
+                        x2="300"
+                        y2="200"
+                    />
+                    <circle
+                        class="prepare-field-circle"
+                        cx="150"
+                        cy="200"
+                        r="30"
+                    />
+                    <circle
+                        class="prepare-field-spot"
+                        cx="150"
+                        cy="200"
+                        r="1.5"
+                    />
+                    <rect
+                        class="prepare-field-box"
+                        x="60"
+                        y="0"
+                        width="180"
+                        height="50"
+                    />
+                    <rect
+                        class="prepare-field-box"
+                        x="110"
+                        y="0"
+                        width="80"
+                        height="20"
+                    />
+                    <rect
+                        class="prepare-field-box"
+                        x="60"
+                        y="350"
+                        width="180"
+                        height="50"
+                    />
+                    <rect
+                        class="prepare-field-box"
+                        x="110"
+                        y="380"
+                        width="80"
+                        height="20"
+                    />
                 </svg>
-
-                <div class="game-away-row game-away-row-gk">
-                    <OpponentPill
-                        v-for="(name, i) in opponentPlayers.gk"
-                        :key="`agk${i}`"
-                        :name="name"
-                    />
-                </div>
-                <div class="game-away-row game-away-row-def">
-                    <OpponentPill
-                        v-for="(name, i) in opponentPlayers.def"
-                        :key="`adef${i}`"
-                        :name="name"
-                    />
-                </div>
-                <div class="game-away-row game-away-row-mid">
-                    <OpponentPill
-                        v-for="(name, i) in opponentPlayers.mid"
-                        :key="`amid${i}`"
-                        :name="name"
-                    />
-                </div>
-                <div class="game-away-row game-away-row-fwd">
-                    <OpponentPill
-                        v-for="(name, i) in opponentPlayers.fwd"
-                        :key="`afwd${i}`"
-                        :name="name"
-                    />
-                </div>
 
                 <PlayerPill
                     v-for="player in placedPlayers"
@@ -65,7 +85,10 @@
             </div>
 
             <div class="prepare-pool">
-                <PlayerPool :pool="poolPlayers" @pick="handlePick" />
+                <PlayerPool
+                    :pool="poolPlayers"
+                    @pick="handlePick"
+                />
             </div>
 
             <button
@@ -78,60 +101,52 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-import OpponentPill from '@/pages/Game/components/OpponentPill.vue'
-import PlayerPill from '@/pages/Game/components/PlayerPill.vue'
-import { useFieldDrag } from '@/composables/useFieldDrag'
-import { useSquadStore } from '@/stores/squad'
+import PlayerPill from '@/pages/Game/components/PlayerPill.vue';
+import { useFieldDrag } from '@/composables/useFieldDrag';
+import { useSquadStore } from '@/stores/squad';
 
-import PlayerPool from './components/PlayerPool.vue'
+import PlayerPool from './components/PlayerPool.vue';
 
-const store = useSquadStore()
-const router = useRouter()
+const store = useSquadStore();
+const router = useRouter();
 
-const fieldRef = ref<HTMLElement | null>(null)
-const { draggingId, handleDragStart } = useFieldDrag(fieldRef)
+const fieldRef = ref<HTMLElement | null>(null);
+const { draggingId, handleDragStart } = useFieldDrag(fieldRef);
 
-const totalCount = computed(() => store.players.length)
+const totalCount = computed(() => store.players.length);
 const placedCount = computed(() =>
     store.players.filter((p) => store.pillCoords[p.id] != null).length,
-)
+);
 const placedPlayers = computed(() =>
     store.players.filter((p) => store.pillCoords[p.id] != null),
-)
+);
 
 const poolPlayers = computed(() =>
     store.players.filter(
         (p) => p.position !== 'gk' && store.pillCoords[p.id] == null,
     ),
-)
+);
 
 const allPlaced = computed(
     () => placedCount.value === totalCount.value && totalCount.value === 11,
-)
-
-const opponentPlayers = {
-    gk: ['Raya'],
-    def: ['Zinchenko', 'Saliba', 'Gabriel', 'White'],
-    mid: ['Martinelli', 'Rice', 'Ødegaard', 'Saka'],
-    fwd: ['Trossard', 'Havertz', 'Jesus'],
-}
+);
 
 function handlePick(id: number) {
-    store.placeAtCenter(id)
+    store.placeAtCenter(id);
 }
 
 function goToGame() {
-    if (!allPlaced.value) return
-    router.push({ name: 'Game' })
+    if (!allPlaced.value) return;
+    router.push({ name: 'Game' });
 }
 
 onMounted(() => {
-    store.clearCoords()
-    store.placeGk()
-})
+    store.clearCoords();
+    store.placeGk();
+});
 </script>
 
 <style lang="less" scoped>
