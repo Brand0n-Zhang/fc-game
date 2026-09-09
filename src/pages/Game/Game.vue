@@ -67,6 +67,38 @@
                     />
                 </svg>
 
+                <div class="game-away-row game-away-row-gk">
+                    <OpponentPill
+                        v-for="(name, i) in opponentPlayers.gk"
+                        :key="`agk${i}`"
+                        :name="name"
+                    />
+                </div>
+
+                <div class="game-away-row game-away-row-def">
+                    <OpponentPill
+                        v-for="(name, i) in opponentPlayers.def"
+                        :key="`adef${i}`"
+                        :name="name"
+                    />
+                </div>
+
+                <div class="game-away-row game-away-row-mid">
+                    <OpponentPill
+                        v-for="(name, i) in opponentPlayers.mid"
+                        :key="`amid${i}`"
+                        :name="name"
+                    />
+                </div>
+
+                <div class="game-away-row game-away-row-fwd">
+                    <OpponentPill
+                        v-for="(name, i) in opponentPlayers.fwd"
+                        :key="`afwd${i}`"
+                        :name="name"
+                    />
+                </div>
+
                 <div class="game-home-row game-home-row-fwd">
                     <PlayerPill
                         v-for="player in store.lineup.fwd"
@@ -152,6 +184,7 @@ import { ref, computed, onBeforeUnmount } from 'vue';
 import AttackFlow from './components/AttackFlow.vue';
 import AttackFlowViz from './components/AttackFlowViz.vue';
 import CardThumb from './components/CardThumb.vue';
+import OpponentPill from './components/OpponentPill.vue';
 import PlayerPill from './components/PlayerPill.vue';
 import type { Card } from '@/types/cardType';
 import type { Player } from '@/types/playerType';
@@ -180,6 +213,13 @@ interface ChainStep {
 const modalOpen = ref(false);
 const attackChain = ref<ChainStep[]>([]);
 const showViz = ref(false);
+
+const opponentPlayers = {
+    gk: ['Raya'],
+    def: ['Zinchenko', 'Saliba', 'Gabriel', 'White'],
+    mid: ['Martinelli', 'Rice', 'Ødegaard', 'Saka'],
+    fwd: ['Trossard', 'Havertz', 'Jesus'],
+};
 
 const draggingId = ref<number | null>(null);
 const hoverId = ref<number | null>(null);
