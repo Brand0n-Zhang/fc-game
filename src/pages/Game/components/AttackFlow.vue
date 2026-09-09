@@ -19,13 +19,7 @@
                         class="attack-flow-pickable"
                         @click="selectGk"
                     >
-                        <PlayerPill
-                            :player="gkPlayer"
-                            :top-pct="0"
-                            :left-pct="0"
-                            :is-dragging="false"
-                            :is-conflict="false"
-                        />
+                        <span class="attack-flow-pill">{{ gkPlayer.name }}</span>
                     </div>
                 </div>
             </div>
@@ -65,13 +59,7 @@
                         class="attack-flow-pickable"
                         @click="selectPlayer(player)"
                     >
-                        <PlayerPill
-                            :player="player"
-                            :top-pct="0"
-                            :left-pct="0"
-                            :is-dragging="false"
-                            :is-conflict="false"
-                        />
+                        <span class="attack-flow-pill">{{ player.name }}</span>
                     </div>
                 </div>
                 <button
@@ -104,7 +92,6 @@
 import { ref, computed, watch } from 'vue';
 
 import CardThumb from './CardThumb.vue';
-import PlayerPill from './PlayerPill.vue';
 import { nearestTeammates } from '@/game/slots';
 import type { Card } from '@/types/cardType';
 import type { Player } from '@/types/playerType';
