@@ -96,6 +96,11 @@
             </div>
 
             <button
+                class="prepare-debug"
+                @click="autoPosition"
+            >一键站位(调试)</button>
+
+            <button
                 class="prepare-start"
                 :disabled="!allPlaced"
                 @click="goToGame"
@@ -110,6 +115,7 @@ import { useRouter } from 'vue-router';
 
 import OpponentPill from '@/pages/Game/components/OpponentPill.vue';
 import PlayerPill from '@/pages/Game/components/PlayerPill.vue';
+import { SLOT_COORDS } from '@/game/slots';
 import { useFieldDrag } from '@/composables/useFieldDrag';
 import { useSquadStore } from '@/stores/squad';
 
@@ -141,6 +147,13 @@ const allPlaced = computed(
 
 function handlePick(id: number) {
     store.placeAtCenter(id);
+}
+
+function autoPosition() {
+    for (const p of store.players) {
+        const [sx, sy] = SLOT_COORDS[p.position]
+        store.setCoord(p.id, sy / 400, sx / 300)
+    }
 }
 
 function goToGame() {

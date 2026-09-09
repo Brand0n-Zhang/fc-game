@@ -129,6 +129,27 @@
     transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.15s ease;
 }
 
+.prepare-debug {
+    width: 100%;
+    max-width: 360px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(245, 158, 11, 0.18);
+    color: #fbbf24;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px dashed rgba(245, 158, 11, 0.5);
+    transition: background 0.15s ease;
+}
+
+.prepare-debug:hover {
+    background: rgba(245, 158, 11, 0.28);
+}
+
+.prepare-debug:active {
+    transform: scale(0.98);
+}
+
 .prepare-start:disabled {
     opacity: 0.4;
     cursor: not-allowed;
