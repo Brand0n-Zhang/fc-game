@@ -77,6 +77,7 @@
 
 <script lang="ts" setup>
 import { ref, watch, onBeforeUnmount } from 'vue';
+import { OPPS_POSITIONS } from '@/game/slots';
 import { useSquadStore } from '@/stores/squad';
 
 type ChainAction = 'short-pass' | 'long-pass' | 'dribble' | 'shoot';
@@ -121,6 +122,13 @@ const ACTION_LABEL: Record<ChainAction, string> = {
     dribble: '过人',
     shoot: '射门',
 };
+
+const LONG_PASS_DISTANCE_PENALTY_MAX = 30;
+const LONG_PASS_BLOCKER_PENALTY = 15;
+const LONG_PASS_BLOCKER_THRESHOLD = 25;
+const LONG_PASS_MIN_RATE = 5;
+const LONG_PASS_MAX_RATE = 95;
+const FIELD_DIAGONAL = Math.hypot(300, 400);
 
 function readPlayerCoords(name: string): [number, number] {
     const player = store.players.find((p) => p.name === name);
@@ -217,7 +225,47 @@ function rollStep(i: number): boolean {
     const step = props.chain[i];
     const value = getAbilityValue(step);
     if (value == null) return true;
+    if (step.type === 'long-pass') {
+        const fromCoord = readPlayerCoords(step.from);
+        const toCoord = step.goal ?? readPlayerCoords(step.to);
+        const finalRate = computeLongPassRate(fromCoord, toCoord, value);
+        return Math.random() * 100 < finalRate;
+    }
     return Math.random() * 100 < value;
+}
+
+function distanceToSegment(
+    from: [number, number],
+    to: [number, number],
+    point: [number, number],
+): number {
+    const dx = to[0] - from[0];
+    const dy = to[1] - from[1];
+    const lenSq = dx * dx + dy * dy;
+    if (lenSq === 0) return Math.hypot(point[0] - from[0], point[1] - from[1]);
+    let t = ((point[0] - from[0]) * dx + (point[1] - from[1]) * dy) / lenSq;
+    t = Math.max(0, Math.min(1, t));
+    const projX = from[0] + t * dx;
+    const projY = from[1] + t * dy;
+    return Math.hypot(point[0] - projX, point[1] - projY);
+}
+
+function computeLongPassRate(
+    from: [number, number],
+    to: [number, number],
+    baseRate: number,
+): number {
+    const distance = Math.hypot(to[0] - from[0], to[1] - from[1]);
+    const distancePenalty =
+        (distance / FIELD_DIAGONAL) * LONG_PASS_DISTANCE_PENALTY_MAX;
+    const blockersCount = OPPS_POSITIONS.filter(
+        (opp) => distanceToSegment(from, to, opp) < LONG_PASS_BLOCKER_THRESHOLD,
+    ).length;
+    const blockerPenalty = blockersCount * LONG_PASS_BLOCKER_PENALTY;
+    return Math.max(
+        LONG_PASS_MIN_RATE,
+        Math.min(LONG_PASS_MAX_RATE, baseRate - distancePenalty - blockerPenalty),
+    );
 }
 
 function failStep(i: number): void {

@@ -26,3 +26,15 @@ export function nearestTeammates(from: Slot, allSlots: Slot[], count: number): S
         .sort((a, b) => slotDistance(from, a) - slotDistance(from, b))
         .slice(0, count)
 }
+
+// Opponent lineup (Arsenal 4-4-3), SVG coords. Order matches Game.vue render order.
+export const OPPS_POSITIONS: Array<[number, number]> = [
+    // gk
+    [150, 30],
+    // def (LB, LCB, RCB, RB)
+    [50, 100], [110, 100], [190, 100], [250, 100],
+    // mid (4)
+    [60, 180], [120, 180], [180, 180], [240, 180],
+    // fwd (LW, ST, RW)
+    [60, 270], [150, 270], [240, 270],
+]
