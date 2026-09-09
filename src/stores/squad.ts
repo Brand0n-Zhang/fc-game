@@ -55,5 +55,10 @@ export const useSquadStore = defineStore('squad', () => {
         b.position = tmp
     }
 
-    return { players, lineup, swapPositions }
+    function updatePosition(id: number, slot: Slot): void {
+        const p = players.value.find((p) => p.id === id)
+        if (p) p.position = slot
+    }
+
+    return { players, lineup, swapPositions, updatePosition }
 })

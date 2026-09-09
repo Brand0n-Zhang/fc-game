@@ -3,10 +3,10 @@
         class="player-pill"
         :class="{
             'is-dragging': isDragging,
-            'is-hover': isHover
+            'is-conflict': isConflict,
         }"
         :data-player-id="player.id"
-        :style="dragStyle"
+        :style="pillStyle"
         @pointerdown="onPointerDown"
     >
         {{ player.name }}
@@ -20,23 +20,21 @@ import type { Player } from '@/types/playerType'
 
 const props = defineProps<{
     player: Player
+    topPct: number
+    leftPct: number
     isDragging: boolean
-    isHover: boolean
-    dragX: number
-    dragY: number
+    isConflict: boolean
 }>()
 
 const emit = defineEmits<{
     dragstart: [id: number, clientX: number, clientY: number]
 }>()
 
-const dragStyle = computed(() => {
-    if (!props.isDragging) return {}
-    return {
-        transform: `translate(${props.dragX}px, ${props.dragY}px) scale(0.95)`,
-        zIndex: 1000,
-    }
-})
+const pillStyle = computed(() => ({
+    top: `${props.topPct * 100}%`,
+    left: `${props.leftPct * 100}%`,
+    zIndex: props.isDragging ? 1000 : 1,
+}))
 
 const onPointerDown = (e: PointerEvent) => {
     emit('dragstart', props.player.id, e.clientX, e.clientY)

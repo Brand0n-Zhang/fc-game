@@ -21,10 +21,10 @@
                     >
                         <PlayerPill
                             :player="gkPlayer"
+                            :top-pct="0"
+                            :left-pct="0"
                             :is-dragging="false"
-                            :is-hover="false"
-                            :drag-x="0"
-                            :drag-y="0"
+                            :is-conflict="false"
                         />
                     </div>
                 </div>
@@ -67,10 +67,10 @@
                     >
                         <PlayerPill
                             :player="player"
+                            :top-pct="0"
+                            :left-pct="0"
                             :is-dragging="false"
-                            :is-hover="false"
-                            :drag-x="0"
-                            :drag-y="0"
+                            :is-conflict="false"
                         />
                     </div>
                 </div>
