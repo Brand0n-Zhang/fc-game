@@ -66,11 +66,9 @@
         </svg>
 
         <div v-if="failureInfo" class="attack-flow-viz-toast">
-            <p class="attack-flow-viz-toast-title">传球失败</p>
+            <p class="attack-flow-viz-toast-title">{{ failureInfo.actionLabel }}失败</p>
             <p class="attack-flow-viz-toast-msg">
-                {{ failureInfo.player }} 的{{ failureInfo.abilityLabel }}能力值仅
-                <strong>{{ failureInfo.value }}</strong>
-                ，未能完成{{ failureInfo.actionLabel }}!
+                {{ failureInfo.player }} 的{{ failureInfo.actionLabel }}失败了
             </p>
             <button class="attack-flow-viz-toast-btn" @click="emit('close')">关闭</button>
         </div>
@@ -98,9 +96,7 @@ interface Point {
 
 interface FailureInfo {
     player: string;
-    abilityLabel: string;
     actionLabel: string;
-    value: number;
 }
 
 const props = defineProps<{
@@ -118,11 +114,6 @@ const failedIndex = ref<number | null>(null);
 const failureInfo = ref<FailureInfo | null>(null);
 const coords = ref<Point[]>([]);
 let timer: ReturnType<typeof setInterval> | null = null;
-
-const ABILITY_LABEL: Record<Exclude<ChainAction, 'dribble' | 'shoot'>, string> = {
-    'short-pass': '短传',
-    'long-pass': '长传',
-};
 
 const ACTION_LABEL: Record<ChainAction, string> = {
     'short-pass': '短传',
@@ -231,13 +222,10 @@ function rollStep(i: number): boolean {
 
 function failStep(i: number): void {
     const step = props.chain[i];
-    const value = getAbilityValue(step);
     failedIndex.value = i;
     failureInfo.value = {
         player: step.from,
-        abilityLabel: step.type === 'shoot' ? '射门' : ABILITY_LABEL[step.type as 'short-pass' | 'long-pass'],
         actionLabel: ACTION_LABEL[step.type],
-        value: value ?? 0,
     };
 }
 
