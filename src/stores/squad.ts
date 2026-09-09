@@ -1,22 +1,8 @@
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 import { SLOT_COORDS } from '@/game/slots'
-import type { Line, Player, Slot } from '@/types/playerType'
-
-function lineOf(position: Slot): Line {
-    if (position === 'gk') return 'gk'
-    if (position === 'lb' || position === 'lcb' || position === 'rcb' || position === 'rb') return 'def'
-    if (position === 'lcm' || position === 'cm' || position === 'rcm') return 'mid'
-    return 'fwd'
-}
-
-const slotOrder: Record<Line, Slot[]> = {
-    gk: ['gk'],
-    def: ['lb', 'lcb', 'rcb', 'rb'],
-    mid: ['lcm', 'cm', 'rcm'],
-    fwd: ['lw', 'st', 'rw'],
-}
+import type { Player, Slot } from '@/types/playerType'
 
 const SLOT_VIEW_WIDTH = 300
 const SLOT_VIEW_HEIGHT = 400
@@ -39,17 +25,6 @@ export const useSquadStore = defineStore('squad', () => {
     const players = ref<Player[]>([...initialSquad])
     const pillCoords = ref<Record<number, { topPct: number; leftPct: number }>>({})
     const conflictIds = ref<Set<number>>(new Set())
-
-    const lineup = computed(() => {
-        const sortBySlot = (line: Line) => (a: Player, b: Player) =>
-            slotOrder[line].indexOf(a.position) - slotOrder[line].indexOf(b.position)
-        return {
-            gk: players.value.filter((p) => lineOf(p.position) === 'gk'),
-            def: players.value.filter((p) => lineOf(p.position) === 'def').sort(sortBySlot('def')),
-            mid: players.value.filter((p) => lineOf(p.position) === 'mid').sort(sortBySlot('mid')),
-            fwd: players.value.filter((p) => lineOf(p.position) === 'fwd').sort(sortBySlot('fwd')),
-        }
-    })
 
     function swapPositions(idA: number, idB: number): void {
         if (idA === idB) return
@@ -106,7 +81,6 @@ export const useSquadStore = defineStore('squad', () => {
 
     return {
         players,
-        lineup,
         pillCoords,
         conflictIds,
         swapPositions,

@@ -92,7 +92,6 @@
 import { ref, computed, watch } from 'vue';
 
 import CardThumb from './CardThumb.vue';
-import { nearestTeammates } from '@/game/slots';
 import type { Card } from '@/types/cardType';
 import type { Player } from '@/types/playerType';
 import { useSquadStore } from '@/stores/squad';
@@ -144,17 +143,26 @@ const availablePlayers = computed<Player[]>(() => {
     if (!currentTarget.value) return [];
     const card = lastCard.value;
     if (!card) return [];
-    const allSlots = store.players.map((p) => p.position);
-    if (card.type === 'short-pass') {
-        const slots = nearestTeammates(currentTarget.value.position, allSlots, 3);
-        return store.players.filter((p) => slots.includes(p.position));
-    }
-    if (card.type === 'long-pass') {
-        const nearest2 = new Set(nearestTeammates(currentTarget.value.position, allSlots, 2));
-        return store.players.filter(
-            (p) => p.id !== currentTarget.value!.id && !nearest2.has(p.position),
-        );
-    }
+
+    const currentCoord = store.pillCoords[currentTarget.value.id];
+    if (!currentCoord) return [];
+
+    const others = store.players
+        .filter((p) => p.id !== currentTarget.value!.id && store.pillCoords[p.id] != null)
+        .map((p) => {
+            const c = store.pillCoords[p.id]!;
+            return {
+                player: p,
+                dist: Math.hypot(
+                    (currentCoord.leftPct - c.leftPct) * 300,
+                    (currentCoord.topPct - c.topPct) * 400,
+                ),
+            };
+        })
+        .sort((a, b) => a.dist - b.dist);
+
+    if (card.type === 'short-pass') return others.slice(0, 3).map((x) => x.player);
+    if (card.type === 'long-pass') return others.slice(2).map((x) => x.player);
     return [];
 });
 
