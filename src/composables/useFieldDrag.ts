@@ -4,7 +4,7 @@ import { SLOT_COORDS } from '@/game/slots'
 import { useSquadStore } from '@/stores/squad'
 import type { Slot } from '@/types/playerType'
 
-export function useFieldDrag(fieldRef: Ref<HTMLElement | null>) {
+export function useFieldDrag(fieldRef: Ref<HTMLElement | null>, minTopPct = 0) {
     const store = useSquadStore()
     const draggingId = ref<number | null>(null)
 
@@ -63,7 +63,7 @@ export function useFieldDrag(fieldRef: Ref<HTMLElement | null>) {
         const maxLeft = 1 - pillWPct
         const maxTop = 1 - pillHPct
         const newLeftPct = Math.max(0, Math.min(maxLeft, rawLeftPx / fieldRect.width))
-        const newTopPct = Math.max(0, Math.min(maxTop, rawTopPx / fieldRect.height))
+        const newTopPct = Math.max(minTopPct, Math.min(maxTop, rawTopPx / fieldRect.height))
         const id = draggingId.value
         store.setCoord(id, newTopPct, newLeftPct)
         detectConflicts(id)

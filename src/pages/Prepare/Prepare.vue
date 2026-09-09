@@ -71,6 +71,10 @@
                     />
                 </svg>
 
+                <div class="game-away-row game-away-row-gk">
+                    <OpponentPill name="对方门将" />
+                </div>
+
                 <PlayerPill
                     v-for="player in placedPlayers"
                     :key="player.id"
@@ -104,6 +108,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
+import OpponentPill from '@/pages/Game/components/OpponentPill.vue';
 import PlayerPill from '@/pages/Game/components/PlayerPill.vue';
 import { useFieldDrag } from '@/composables/useFieldDrag';
 import { useSquadStore } from '@/stores/squad';
@@ -114,7 +119,7 @@ const store = useSquadStore();
 const router = useRouter();
 
 const fieldRef = ref<HTMLElement | null>(null);
-const { draggingId, handleDragStart } = useFieldDrag(fieldRef);
+const { draggingId, handleDragStart } = useFieldDrag(fieldRef, 0.08);
 
 const totalCount = computed(() => store.players.length);
 const placedCount = computed(() =>
