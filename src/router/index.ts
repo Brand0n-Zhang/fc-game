@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
 import Game from '@/pages/Game/Game.vue'
 import Prepare from '@/pages/Prepare/Prepare.vue'
+import Tactic from '@/pages/Tactic/Tactic.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -9,6 +10,12 @@ const routes: RouteRecordRaw[] = [
     name: 'Prepare',
     component: Prepare,
     meta: { title: '组建阵容' },
+  },
+  {
+    path: '/tactic',
+    name: 'Tactic',
+    component: Tactic,
+    meta: { title: '选择战术' },
   },
   {
     path: '/game',

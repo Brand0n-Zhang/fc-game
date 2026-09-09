@@ -1,0 +1,1 @@
+export type TacticStyle = 'possession' | 'pressing' | 'counter'

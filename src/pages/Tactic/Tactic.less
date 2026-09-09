@@ -1,0 +1,62 @@
+.tactic {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+    padding: 16px 16px 24px;
+}
+
+.tactic-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+}
+
+.tactic-brand {
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    color: #94a3b8;
+    text-transform: uppercase;
+}
+
+.tactic-hint {
+    margin: 0 0 12px;
+    font-size: 12px;
+    color: #64748b;
+    text-align: center;
+}
+
+.tactic-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 360px;
+    margin-bottom: 16px;
+}
+
+.tactic-confirm {
+    width: 100%;
+    max-width: 360px;
+    height: 48px;
+    margin-top: auto;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 100%);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.35);
+    transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.15s ease;
+}
+
+.tactic-confirm:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.tactic-confirm:not(:disabled):active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 6px rgba(14, 165, 233, 0.25);
+}

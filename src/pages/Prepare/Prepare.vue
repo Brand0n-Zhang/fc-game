@@ -158,7 +158,7 @@ function autoPosition() {
 
 function goToGame() {
     if (!allPlaced.value) return;
-    router.push({ name: 'Game' });
+    router.push({ name: 'Tactic' });
 }
 
 onMounted(() => {

@@ -138,7 +138,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 
 import AttackFlow from './components/AttackFlow.vue';
 import AttackFlowViz from './components/AttackFlowViz.vue';
@@ -147,18 +147,13 @@ import OpponentPill from './components/OpponentPill.vue';
 import PlayerPill from './components/PlayerPill.vue';
 import type { Card } from '@/types/cardType';
 import type { Player } from '@/types/playerType';
-import { useCardStore } from '@/stores/card';
 import { GK_PLAYER_ID, useSquadStore } from '@/stores/squad';
+import { useTacticStore } from '@/stores/tactic';
 
 const store = useSquadStore();
-const cardStore = useCardStore();
+const tacticStore = useTacticStore();
 
-const shortPassOnly = (c: Card) => c.type === 'short-pass';
-const longPassOnly = (c: Card) => c.type === 'long-pass';
-const handCards = ref<Card[]>([
-    ...cardStore.drawRandom('attack', 1, longPassOnly),
-    ...cardStore.drawRandom('attack', 5, shortPassOnly),
-]);
+const handCards = computed<Card[]>(() => tacticStore.handComposition);
 
 type ChainAction = 'short-pass' | 'long-pass' | 'dribble' | 'shoot';
 interface ChainStep {
@@ -207,6 +202,9 @@ function onVizClose() {
 onMounted(() => {
     if (Object.keys(store.pillCoords).length === 0) {
         store.resetCoordsFromSlots();
+    }
+    if (!tacticStore.currentStyle) {
+        tacticStore.setStyle('possession');
     }
 });
 </script>
