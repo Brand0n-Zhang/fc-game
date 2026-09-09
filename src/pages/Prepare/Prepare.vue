@@ -83,7 +83,7 @@
                     :left-pct="store.pillCoords[player.id]?.leftPct ?? 0"
                     :is-dragging="draggingId === player.id"
                     :is-conflict="store.conflictIds.has(player.id)"
-                    :draggable="player.position !== 'gk'"
+                    :draggable="player.id !== GK_PLAYER_ID"
                     @dragstart="handleDragStart"
                 />
             </div>
@@ -117,7 +117,7 @@ import OpponentPill from '@/pages/Game/components/OpponentPill.vue';
 import PlayerPill from '@/pages/Game/components/PlayerPill.vue';
 import { SLOT_COORDS } from '@/game/slots';
 import { useFieldDrag } from '@/composables/useFieldDrag';
-import { useSquadStore } from '@/stores/squad';
+import { GK_PLAYER_ID, useSquadStore } from '@/stores/squad';
 
 import PlayerPool from './components/PlayerPool.vue';
 
@@ -137,7 +137,7 @@ const placedPlayers = computed(() =>
 
 const poolPlayers = computed(() =>
     store.players.filter(
-        (p) => p.position !== 'gk' && store.pillCoords[p.id] == null,
+        (p) => p.id !== GK_PLAYER_ID && store.pillCoords[p.id] == null,
     ),
 );
 
@@ -151,7 +151,7 @@ function handlePick(id: number) {
 
 function autoPosition() {
     for (const p of store.players) {
-        const [sx, sy] = SLOT_COORDS[p.position]
+        const [sx, sy] = SLOT_COORDS[p.defaultSlot]
         store.setCoord(p.id, sy / 400, sx / 300)
     }
 }

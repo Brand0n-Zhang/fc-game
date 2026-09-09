@@ -1,8 +1,6 @@
 import { ref, type Ref } from 'vue'
 
-import { SLOT_COORDS } from '@/game/slots'
 import { useSquadStore } from '@/stores/squad'
-import type { Slot } from '@/types/playerType'
 
 export function useFieldDrag(fieldRef: Ref<HTMLElement | null>, minTopPct = 0) {
     const store = useSquadStore()
@@ -13,23 +11,6 @@ export function useFieldDrag(fieldRef: Ref<HTMLElement | null>, minTopPct = 0) {
     let pillWPct = 0
     let pillHPct = 0
     let dragStartPct: { topPct: number; leftPct: number } | null = null
-
-    function findNearestSlot(topPct: number, leftPct: number, excludeGk = false): Slot {
-        const cx = leftPct * 300
-        const cy = topPct * 400
-        let best: Slot = 'gk'
-        let bestDist = Infinity
-        for (const slot of Object.keys(SLOT_COORDS) as Slot[]) {
-            if (excludeGk && slot === 'gk') continue
-            const [sx, sy] = SLOT_COORDS[slot]
-            const d = Math.hypot(sx - cx, sy - cy)
-            if (d < bestDist) {
-                bestDist = d
-                best = slot
-            }
-        }
-        return best
-    }
 
     function detectConflicts(dragId: number): void {
         const dragged = store.pillCoords[dragId]
@@ -75,12 +56,6 @@ export function useFieldDrag(fieldRef: Ref<HTMLElement | null>, minTopPct = 0) {
             const start = dragStartPct
             if (store.conflictIds.size > 0 && start) {
                 store.setCoord(id, start.topPct, start.leftPct)
-            } else {
-                const coord = store.pillCoords[id]
-                if (coord) {
-                    const slot = findNearestSlot(coord.topPct, coord.leftPct, true)
-                    store.updatePosition(id, slot)
-                }
             }
         }
         draggingId.value = null

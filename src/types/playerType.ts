@@ -11,12 +11,10 @@ export type Slot =
     | 'st'
     | 'rw'
 
-export type Line = 'gk' | 'def' | 'mid' | 'fwd'
-
 export interface Player {
     id: number
     name: string
-    position: Slot
+    defaultSlot: Slot
     shortPass: number
     longPass: number
     shooting: number

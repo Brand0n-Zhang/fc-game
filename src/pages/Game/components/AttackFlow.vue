@@ -94,7 +94,7 @@ import { ref, computed, watch } from 'vue';
 import CardThumb from './CardThumb.vue';
 import type { Card } from '@/types/cardType';
 import type { Player } from '@/types/playerType';
-import { useSquadStore } from '@/stores/squad';
+import { useSquadStore, GK_PLAYER_ID } from '@/stores/squad';
 
 type Step = 'pick-gk' | 'pick-card' | 'pick-player' | 'done';
 
@@ -128,7 +128,7 @@ watch(() => props.show, (val) => {
 });
 
 const gkPlayer = computed<Player | null>(
-    () => store.players.find((p) => p.position === 'gk') ?? null,
+    () => store.players.find((p) => p.id === GK_PLAYER_ID) ?? null,
 );
 
 const remainingCards = computed<Card[]>(() => {

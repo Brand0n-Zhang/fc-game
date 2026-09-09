@@ -148,7 +148,7 @@ import PlayerPill from './components/PlayerPill.vue';
 import type { Card } from '@/types/cardType';
 import type { Player } from '@/types/playerType';
 import { useCardStore } from '@/stores/card';
-import { useSquadStore } from '@/stores/squad';
+import { GK_PLAYER_ID, useSquadStore } from '@/stores/squad';
 
 const store = useSquadStore();
 const cardStore = useCardStore();
@@ -181,7 +181,7 @@ const opponentPlayers = {
 };
 
 function onAttackFinish(cards: Card[], targets: Player[], shoot: boolean) {
-    const gk = store.players.find((p) => p.position === 'gk');
+    const gk = store.players.find((p) => p.id === GK_PLAYER_ID);
     const chain: ChainStep[] = cards.map((card, i) => ({
         card: card.name.zh,
         type: card.type as ChainAction,
